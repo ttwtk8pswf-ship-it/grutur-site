@@ -118,10 +118,9 @@ body {
 .logo-image{
   height: auto;
   width: auto;
-  max-height: 56px;     /* mais seguro para header */
-  max-width: 180px;
+  max-height: 72px;   /* antes 56px */
+  max-width: 240px;   /* antes 180px */
   object-fit: contain;
-  transition: var(--transition-fast);
   background: transparent;
   filter: contrast(1.1) brightness(1.05);
 }
