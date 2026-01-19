@@ -241,6 +241,8 @@ body {
   height: auto;
   object-fit: contain;
   filter: grayscale(100%) contrast(1.1);
+  background: transparent !important;
+  mix-blend-mode: multiply;  /* remove brancos */
 }
 
 .hero-logo-bg {
