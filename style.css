@@ -115,14 +115,15 @@ body {
     transition: var(--transition-fast);
 }
 
-.logo-image {
-    height: 120px;
-    width: auto;
-    object-fit: contain;
-    transition: var(--transition-fast);
-    background: transparent;
-    mix-blend-mode: darken;
-    filter: contrast(1.1) brightness(1.05);
+.logo-image{
+  height: auto;
+  width: auto;
+  max-height: 56px;     /* mais seguro para header */
+  max-width: 180px;
+  object-fit: contain;
+  transition: var(--transition-fast);
+  background: transparent;
+  filter: contrast(1.1) brightness(1.05);
 }
 
 .logo:hover {
