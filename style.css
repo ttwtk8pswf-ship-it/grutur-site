@@ -1306,3 +1306,9 @@ section {
         transform: translateX(0);
     }
 }
+@media (max-width: 600px){
+  .logo-image{
+    max-height: 56px;
+    max-width: 200px;
+  }
+}
