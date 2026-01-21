@@ -1,224 +1,358 @@
-<!doctype html>
-<html lang="pt-PT">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Grutur - Ecoturismo, Lda</title>
-  <meta name="description" content="Grutur - Ecoturismo, Lda: Consumíveis para restauração e hotelaria, táxi por aplicativo e cosméticos." />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
-
-  <!-- PWA Meta Tags -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="logo-grutur.png">
-  <link rel="apple-touch-icon" href="logo-grutur.png">
-  <meta name="theme-color" content="#52b788">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Grutur">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Grutur - Ecoturismo, Lda. Produtos de restauração, táxi por aplicativo, cosméticos e Personal Shopper África do Sul - Angola">
+    <title>Grutur - Ecoturismo, Lda</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <a class="skip-link" href="#conteudo">Saltar para o conteúdo</a>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="nav container">
+            <div class="nav__logo">
+                <i class="fas fa-leaf"></i>
+                <span>Grutur</span>
+            </div>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#home" class="nav__link active">Início</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#about" class="nav__link">Sobre</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#services" class="nav__link">Serviços</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#contact" class="nav__link">Contato</a>
+                    </li>
+                </ul>
+                <div class="nav__close" id="nav-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="nav__toggle" id="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
 
-  <header class="site-header" id="topo">
-    <div class="container header-inner">
-      <a class="brand" href="#topo" aria-label="Grutur - Ecoturismo, Lda">
-        <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-leaf"></i></span>
-        <span class="brand-text">
-          <strong>Grutur</strong>
-          <small>Ecoturismo, Lda</small>
-        </span>
-      </a>
+    <!-- Main -->
+    <main class="main">
+        <!-- Hero -->
+        <section class="hero" id="home">
+            <div class="hero__container container">
+                <div class="hero__content">
+                    <h1 class="hero__title">
+                        Grutur - Ecoturismo, Lda
+                    </h1>
+                    <p class="hero__description">
+                        Soluções sustentáveis e inovadoras para o seu negócio. Produtos de qualidade, transporte confiável e cosméticos naturais.
+                    </p>
+                    <div class="hero__buttons">
+                        <a href="#services" class="btn btn-primary">Nossos Serviços</a>
+                        <a href="#contact" class="btn btn-secondary">Entre em Contato</a>
+                    </div>
+                </div>
+                <div class="hero__image">
+                    <i class="fas fa-globe-americas"></i>
+                </div>
+            </div>
+            <div class="hero__shape"></div>
+        </section>
 
-      <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
-        <span></span><span></span><span></span>
-      </button>
+        <!-- About -->
+        <section class="about section" id="about">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">Sobre a Grutur</h2>
+                    <p class="section__subtitle">
+                        Comprometidos com a excelência e sustentabilidade
+                    </p>
+                </div>
+                <div class="about__container">
+                    <div class="about__content">
+                        <p class="about__text">
+                            A <strong>Grutur - Ecoturismo, Lda</strong> é uma empresa angolana dedicada a oferecer soluções integradas para diversos setores. Com foco em sustentabilidade e qualidade, atuamos no fornecimento de produtos para restauração e hotelaria, serviços de transporte moderno por aplicativo e comercialização de cosméticos naturais.
+                        </p>
+                        <p class="about__text">
+                            Nossa missão é conectar Angola com o mundo, oferecendo produtos e serviços de alta qualidade que respeitam o meio ambiente e promovem o desenvolvimento sustentável.
+                        </p>
+                        <div class="about__features">
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Produtos de Qualidade Premium</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Serviços Confiáveis</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Compromisso Ambiental</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Inovação Constante</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      <nav class="nav" id="nav" aria-label="Navegação principal">
-        <a href="#sobre">Sobre</a>
-        <a href="#servicos">Serviços</a>
-        <a href="#valores">Valores</a>
-        <a href="#contacto">Contacto</a>
-      </nav>
+        <!-- Services -->
+        <section class="services section" id="services">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">Nossos Serviços</h2>
+                    <p class="section__subtitle">
+                        Soluções completas para suas necessidades
+                    </p>
+                </div>
+                <div class="services__container">
+                    <!-- Serviço 1: Produtos de Restauração -->
+                    <div class="service__card">
+                        <div class="service__icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 class="service__title">Produtos de Restauração e Hotelaria</h3>
+                        <p class="service__description">
+                            Fornecimento de consumíveis e produtos de alta qualidade para restaurantes, hotéis e estabelecimentos comerciais. Garantimos frescor, variedade e entrega pontual.
+                        </p>
+                        <ul class="service__features">
+                            <li><i class="fas fa-check"></i> Alimentos e bebidas</li>
+                            <li><i class="fas fa-check"></i> Utensílios e equipamentos</li>
+                            <li><i class="fas fa-check"></i> Produtos de limpeza</li>
+                            <li><i class="fas fa-check"></i> Entrega garantida</li>
+                        </ul>
+                    </div>
+
+                    <!-- Serviço 2: Táxi por Aplicativo -->
+                    <div class="service__card service__card--featured">
+                        <div class="service__badge">Destaque</div>
+                        <div class="service__icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <h3 class="service__title">Táxi por Aplicativo</h3>
+                        <p class="service__description">
+                            Serviço moderno de transporte urbano com motoristas profissionais, veículos seguros e tarifas justas. Disponível 24/7 através do nosso aplicativo.
+                        </p>
+                        <ul class="service__features">
+                            <li><i class="fas fa-check"></i> Motoristas certificados</li>
+                            <li><i class="fas fa-check"></i> Veículos confortáveis</li>
+                            <li><i class="fas fa-check"></i> Pagamento digital</li>
+                            <li><i class="fas fa-check"></i> Rastreamento em tempo real</li>
+                        </ul>
+                        <a href="#contact" class="service__btn">Saiba Mais</a>
+                    </div>
+
+                    <!-- Serviço 3: Cosméticos -->
+                    <div class="service__card">
+                        <div class="service__icon">
+                            <i class="fas fa-spa"></i>
+                        </div>
+                        <h3 class="service__title">Cosméticos Naturais</h3>
+                        <p class="service__description">
+                            Linha de cosméticos e produtos de cuidado pessoal com ingredientes naturais, sustentáveis e de alta qualidade. Beleza com responsabilidade ambiental.
+                        </p>
+                        <ul class="service__features">
+                            <li><i class="fas fa-check"></i> Ingredientes naturais</li>
+                            <li><i class="fas fa-check"></i> Livre de crueldade</li>
+                            <li><i class="fas fa-check"></i> Embalagens sustentáveis</li>
+                            <li><i class="fas fa-check"></i> Testado dermatologicamente</li>
+                        </ul>
+                    </div>
+
+                    <!-- Serviço 4: Personal Shopper -->
+                    <div class="service__card service__card--special">
+                        <div class="service__image">
+                            <img src="images/personal-shopper.jpg" alt="Personal Shopper África do Sul - Angola">
+                        </div>
+                        <div class="service__icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h3 class="service__title">Personal Shopper África do Sul</h3>
+                        <p class="service__description">
+                            Compre produtos da África do Sul com entrega garantida e segura em Angola. Oferecemos aquisição de cosméticos de marcas premium, suplementos, bolsas, moda e muito mais. Solução completa: você escolhe, nós compramos e entregamos em Luanda.
+                        </p>
+                        <ul class="service__features">
+                            <li><i class="fas fa-check"></i> Compra garantida</li>
+                            <li><i class="fas fa-check"></i> Entrega segura em Luanda</li>
+                            <li><i class="fas fa-check"></i> Marcas premium (Palmer's, Vaseline)</li>
+                            <li><i class="fas fa-check"></i> Cosméticos, moda e suplementos</li>
+                        </ul>
+                        <a href="#contact" class="service__btn">Solicitar Orçamento</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Values -->
+        <section class="values section">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">Nossos Valores</h2>
+                    <p class="section__subtitle">
+                        O que nos move todos os dias
+                    </p>
+                </div>
+                <div class="values__container">
+                    <div class="value__card">
+                        <i class="fas fa-leaf"></i>
+                        <h3>Sustentabilidade</h3>
+                        <p>Compromisso com práticas ambientalmente responsáveis em todos os nossos serviços.</p>
+                    </div>
+                    <div class="value__card">
+                        <i class="fas fa-award"></i>
+                        <h3>Qualidade</h3>
+                        <p>Produtos e serviços de excelência que superam as expectativas dos nossos clientes.</p>
+                    </div>
+                    <div class="value__card">
+                        <i class="fas fa-handshake"></i>
+                        <h3>Confiança</h3>
+                        <p>Relacionamentos transparentes e duradouros com clientes e parceiros.</p>
+                    </div>
+                    <div class="value__card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Inovação</h3>
+                        <p>Sempre buscando novas soluções para melhor atender nossos clientes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section class="contact section" id="contact">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">Entre em Contato</h2>
+                    <p class="section__subtitle">
+                        Estamos prontos para atendê-lo
+                    </p>
+                </div>
+                <div class="contact__container">
+                    <div class="contact__info">
+                        <h3>Informações de Contato</h3>
+                        <div class="contact__item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Endereço</h4>
+                                <p>Luanda, Angola</p>
+                            </div>
+                        </div>
+                        <div class="contact__item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Telefone</h4>
+                                <p>+244 XXX XXX XXX</p>
+                            </div>
+                        </div>
+                        <div class="contact__item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>E-mail</h4>
+                                <p>contato@grutur.ao</p>
+                            </div>
+                        </div>
+                        <div class="contact__social">
+                            <h4>Redes Sociais</h4>
+                            <div class="social__links">
+                                <a href="#" class="social__link"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social__link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social__link"><i class="fab fa-whatsapp"></i></a>
+                                <a href="#" class="social__link"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact__form" id="contactForm">
+                        <h3>Envie uma Mensagem</h3>
+                        <div class="form__group">
+                            <input type="text" id="name" class="form__input" placeholder="Seu Nome" required>
+                        </div>
+                        <div class="form__group">
+                            <input type="email" id="email" class="form__input" placeholder="Seu E-mail" required>
+                        </div>
+                        <div class="form__group">
+                            <input type="tel" id="phone" class="form__input" placeholder="Telefone">
+                        </div>
+                        <div class="form__group">
+                            <textarea id="message" class="form__input form__textarea" placeholder="Sua Mensagem" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__container">
+                <div class="footer__content">
+                    <div class="footer__logo">
+                        <i class="fas fa-leaf"></i>
+                        <span>Grutur - Ecoturismo, Lda</span>
+                    </div>
+                    <p class="footer__description">
+                        Soluções sustentáveis e inovadoras para o seu negócio.
+                    </p>
+                </div>
+                <div class="footer__links">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#about">Sobre</a></li>
+                        <li><a href="#services">Serviços</a></li>
+                        <li><a href="#contact">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer__links">
+                    <h4>Serviços</h4>
+                    <ul>
+                        <li><a href="#services">Restauração e Hotelaria</a></li>
+                        <li><a href="#services">Táxi por Aplicativo</a></li>
+                        <li><a href="#services">Cosméticos Naturais</a></li>
+                        <li><a href="#services">Personal Shopper</a></li>
+                    </ul>
+                </div>
+                <div class="footer__contact">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-phone"></i> +244 XXX XXX XXX</p>
+                    <p><i class="fas fa-envelope"></i> contato@grutur.ao</p>
+                    <div class="footer__social">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2024 Grutur - Ecoturismo, Lda. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll Top Button -->
+    <button class="scroll-top" id="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text"></span>
     </div>
-  </header>
 
-  <main id="conteudo">
-    <section class="hero" aria-label="Apresentação">
-      <div class="container hero-inner">
-        <div class="hero-copy">
-          <p class="kicker">Soluções com foco em sustentabilidade e qualidade</p>
-          <h1>Grutur - Ecoturismo, Lda</h1>
-          <p class="lead">Venda de consumíveis e produtos de restauração e hoteleiros, táxi por aplicativo e cosméticos.</p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="#servicos">Ver serviços</a>
-            <a class="btn btn-ghost" href="#contacto">Falar connosco</a>
-          </div>
-          <div class="hero-badges" aria-label="Destaques">
-            <span><i class="fa-solid fa-seedling"></i> Natureza</span>
-            <span><i class="fa-solid fa-check"></i> Qualidade</span>
-            <span><i class="fa-solid fa-shield"></i> Confiança</span>
-          </div>
-        </div>
-
-        <div class="hero-card" role="img" aria-label="Ilustração abstrata verde">
-          <div class="blob"></div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-value">4</div>
-              <div class="stat-label">Áreas de atuação</div>
-            </div>
-            <div class="stat">
-              <div class="stat-value">100%</div>
-              <div class="stat-label">Foco no cliente</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="sobre">
-      <div class="container">
-        <div class="section-head">
-          <h2>Sobre a Grutur</h2>
-          <p>Uma empresa orientada para serviços e produtos com uma visão moderna e sustentável.</p>
-        </div>
-        <div class="grid two">
-          <article class="card">
-            <h3>O que fazemos</h3>
-            <p>Atuamos em quatro frentes: fornecimento para restauração/hotelaria, mobilidade urbana (táxi por aplicativo), cosméticos e personal shopper da África do Sul.</p>
-          </article>
-          <article class="card">
-            <h3>Como trabalhamos</h3>
-            <p>Priorizamos qualidade, transparência e atendimento ágil, com processos simples e foco na experiência do cliente.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt" id="servicos">
-      <div class="container">
-        <div class="section-head">
-          <h2>Serviços</h2>
-          <p>Conheça as nossas principais linhas de serviços e produtos.</p>
-        </div>
-
-        <div class="grid three">
-          <article class="service">
-            <div class="service-icon"><i class="fa-solid fa-utensils"></i></div>
-            <h3>Restauração & Hotelaria</h3>
-            <p>Venda de consumíveis e produtos para restauração e hoteleiros, com soluções práticas para o dia a dia.</p>
-          </article>
-
-          <article class="service featured">
-            <div class="service-icon"><i class="fa-solid fa-taxi"></i></div>
-            <h3>Táxi por Aplicativo</h3>
-            <p>Mobilidade com comodidade e segurança. Ideal para deslocações rápidas com atendimento profissional.</p>
-            <a class="service-link" href="#contacto">Solicitar informações <i class="fa-solid fa-arrow-right"></i></a>
-          </article>
-
-          <article class="service">
-            <div class="service-icon"><i class="fa-solid fa-spray-can-sparkles"></i></div>
-            <h3>Cosméticos</h3>
-            <p>Seleção de cosméticos com foco em qualidade e bem-estar, alinhados a uma proposta mais natural.</p>
-          </article>
-
-          <article class="service">
-            <div class="service-image-container">
-              <img src="importacao-africa-sul.jpg" alt="Personal Shopper África do Sul" class="service-image">
-            </div>
-            <h3>Personal Shopper</h3>
-            <p>O que você quiser da África do Sul, eu resolvo. Compra garantida e entrega segura em Angola. Cosméticos, acessórios, suplementos e muito mais.</p>
-            <a class="service-link" href="#contacto">Solicitar serviço <i class="fa-solid fa-arrow-right"></i></a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="valores">
-      <div class="container">
-        <div class="section-head">
-          <h2>Valores</h2>
-          <p>O que guia as nossas decisões e a forma como atendemos cada cliente.</p>
-        </div>
-
-        <div class="grid two">
-          <article class="pill"><i class="fa-solid fa-leaf"></i><div><h3>Sustentabilidade</h3><p>Compromisso com práticas responsáveis e conscientes.</p></div></article>
-          <article class="pill"><i class="fa-solid fa-award"></i><div><h3>Qualidade</h3><p>Produtos e serviços pensados para entregar confiança.</p></div></article>
-          <article class="pill"><i class="fa-solid fa-handshake"></i><div><h3>Confiança</h3><p>Relação transparente e duradoura com os clientes.</p></div></article>
-          <article class="pill"><i class="fa-solid fa-bolt"></i><div><h3>Inovação</h3><p>Soluções atuais, com melhoria contínua.</p></div></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt" id="contacto">
-      <div class="container">
-        <div class="section-head">
-          <h2>Contacto</h2>
-          <p>Envie uma mensagem — respondemos assim que possível.</p>
-        </div>
-
-        <div class="grid two">
-          <form class="card form" id="contactForm">
-            <label>
-              <span>Nome</span>
-              <input name="nome" type="text" autocomplete="name" required />
-            </label>
-            <label>
-              <span>Email</span>
-              <input name="email" type="email" autocomplete="email" required />
-            </label>
-            <label>
-              <span>Mensagem</span>
-              <textarea name="mensagem" rows="5" required></textarea>
-            </label>
-            <button class="btn btn-primary" type="submit">Enviar</button>
-            <p class="form-hint">Este formulário é demonstrativo (sem envio para servidor). Podemos integrar com EmailJS/Formspree.</p>
-          </form>
-
-          <aside class="card contact-card">
-            <h3>Informações</h3>
-            <ul class="contact-list">
-              <li><i class="fa-solid fa-location-dot"></i> Endereço: (adicione aqui)</li>
-              <li><i class="fa-solid fa-phone"></i> Telefone: (adicione aqui)</li>
-              <li><i class="fa-solid fa-envelope"></i> Email: (adicione aqui)</li>
-            </ul>
-            <div class="social-row" aria-label="Redes sociais">
-              <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-              <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-              <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer-inner">
-      <p>© <span id="year"></span> Grutur - Ecoturismo, Lda. Todos os direitos reservados.</p>
-      <a class="to-top" href="#topo">Voltar ao topo <i class="fa-solid fa-arrow-up"></i></a>
-    </div>
-  </footer>
-
-  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-
-  <script src="js/main.js"></script>
-  
-  <!-- PWA Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(reg => console.log('Service Worker registado'))
-          .catch(err => console.log('Erro no Service Worker:', err));
-      });
-    }
-  </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
