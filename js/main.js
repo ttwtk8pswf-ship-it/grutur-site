@@ -1,210 +1,408 @@
 /* ===================================
-   Grutur - Ecoturismo, Lda
-   JavaScript - Interatividade e Animações
+   GRUTUR - ECOTURISMO, LDA
+   JavaScript Principal
    =================================== */
 
-// === NAVEGAÇÃO MOBILE ===
-const navMenu = document.getElementById('nav-menu');
-const navToggle = document.getElementById('nav-toggle');
-const navClose = document.getElementById('nav-close');
-const navLinks = document.querySelectorAll('.nav__link');
-
-// Abrir menu mobile
-if (navToggle) {
-    navToggle.addEventListener('click', () => {
-        navMenu.classList.add('show-menu');
-    });
-}
-
-// Fechar menu mobile
-if (navClose) {
-    navClose.addEventListener('click', () => {
-        navMenu.classList.remove('show-menu');
-    });
-}
-
-// Fechar menu ao clicar em um link
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('show-menu');
-    });
+// Aguardar o carregamento completo do DOM
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ========== NAVEGAÇÃO ==========
+    initNavigation();
+    
+    // ========== SCROLL EFFECTS ==========
+    initScrollEffects();
+    
+    // ========== FORMULÁRIO ==========
+    initContactForm();
+    
+    // ========== ANIMAÇÕES ==========
+    initAnimations();
+    
 });
 
-// === HEADER SCROLL ===
-function scrollHeader() {
-    const header = document.getElementById('header');
-    if (window.scrollY >= 50) {
-        header.classList.add('scroll-header');
-    } else {
-        header.classList.remove('scroll-header');
-    }
-}
-window.addEventListener('scroll', scrollHeader);
-
-// === NAVEGAÇÃO ATIVA POR SEÇÃO ===
-const sections = document.querySelectorAll('section[id]');
-
-function scrollActive() {
-    const scrollY = window.pageYOffset;
-
-    sections.forEach(current => {
-        const sectionHeight = current.offsetHeight;
-        const sectionTop = current.offsetTop - 100;
-        const sectionId = current.getAttribute('id');
-        const correspondingLink = document.querySelector(`.nav__link[href*="${sectionId}"]`);
-
-        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            correspondingLink?.classList.add('active');
+/* ===================================
+   NAVEGAÇÃO
+   =================================== */
+function initNavigation() {
+    const header = document.querySelector('.header');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navMenu = document.getElementById('navMenu');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Mudar estilo do header ao rolar
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
         } else {
-            correspondingLink?.classList.remove('active');
+            header.classList.remove('scrolled');
         }
     });
+    
+    // Toggle do menu mobile
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+    }
+    
+    // Navegação suave e fechar menu mobile ao clicar
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            // Remover classe active de todos os links
+            navLinks.forEach(l => l.classList.remove('active'));
+            // Adicionar classe active ao link clicado
+            link.classList.add('active');
+            
+            // Fechar menu mobile se estiver aberto
+            if (navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+            }
+            
+            // Navegação suave
+            const targetId = link.getAttribute('href');
+            if (targetId.startsWith('#')) {
+                e.preventDefault();
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    const headerHeight = header.offsetHeight;
+                    const targetPosition = targetSection.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+    
+    // Destacar link ativo baseado na posição do scroll
+    window.addEventListener('scroll', () => {
+        let current = '';
+        const sections = document.querySelectorAll('section[id]');
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (window.scrollY >= (sectionTop - header.offsetHeight - 100)) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    });
 }
-window.addEventListener('scroll', scrollActive);
 
-// === SCROLL SUAVE ===
+/* ===================================
+   EFEITOS DE SCROLL
+   =================================== */
+function initScrollEffects() {
+    const scrollToTopBtn = document.getElementById('scrollToTop');
+    
+    // Mostrar/ocultar botão de voltar ao topo
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollToTopBtn.classList.add('visible');
+        } else {
+            scrollToTopBtn.classList.remove('visible');
+        }
+    });
+    
+    // Funcionalidade do botão voltar ao topo
+    scrollToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Ocultar indicador de scroll após rolar
+    window.addEventListener('scroll', () => {
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        if (scrollIndicator && window.scrollY > 100) {
+            scrollIndicator.style.opacity = '0';
+        }
+    }, { once: true });
+}
+
+/* ===================================
+   FORMULÁRIO DE CONTATO
+   =================================== */
+function initContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Coletar dados do formulário
+            const formData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                servico: document.getElementById('servico').value,
+                mensagem: document.getElementById('mensagem').value,
+                data: new Date().toISOString()
+            };
+            
+            // Validação básica
+            if (!formData.nome || !formData.email || !formData.servico || !formData.mensagem) {
+                showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
+            // Validar email
+            if (!isValidEmail(formData.email)) {
+                showNotification('Por favor, insira um e-mail válido.', 'error');
+                return;
+            }
+            
+            // Simular envio do formulário
+            const submitBtn = contactForm.querySelector('.btn-submit');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitBtn.disabled = true;
+            
+            // Simular delay de envio
+            setTimeout(() => {
+                console.log('Dados do formulário:', formData);
+                
+                showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+                
+                // Resetar formulário
+                contactForm.reset();
+                
+                // Restaurar botão
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 1500);
+        });
+    }
+}
+
+/* ===================================
+   ANIMAÇÕES DE ENTRADA
+   =================================== */
+function initAnimations() {
+    // Intersection Observer para animações ao rolar
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Elementos para animar
+    const animatedElements = document.querySelectorAll(`
+        .servico-card,
+        .valor-item,
+        .sobre-text,
+        .sobre-image,
+        .stat-item,
+        .info-item,
+        .contato-form-wrapper
+    `);
+    
+    animatedElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(element);
+    });
+    
+    // Animação para os cards de serviço com delay
+    const servicoCards = document.querySelectorAll('.servico-card');
+    servicoCards.forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.2}s`;
+    });
+    
+    // Animação para os valores com delay
+    const valorItems = document.querySelectorAll('.valor-item');
+    valorItems.forEach((item, index) => {
+        item.style.transitionDelay = `${index * 0.15}s`;
+    });
+}
+
+/* ===================================
+   FUNÇÕES AUXILIARES
+   =================================== */
+
+// Validar email
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Mostrar notificação
+function showNotification(message, type = 'info') {
+    // Remover notificações anteriores
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Criar notificação
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Adicionar estilos inline
+    Object.assign(notification.style, {
+        position: 'fixed',
+        top: '100px',
+        right: '20px',
+        background: type === 'success' ? '#52b788' : type === 'error' ? '#ef476f' : '#40916c',
+        color: 'white',
+        padding: '1rem 1.5rem',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '1rem',
+        zIndex: '10000',
+        animation: 'slideInRight 0.3s ease',
+        minWidth: '300px',
+        maxWidth: '500px'
+    });
+    
+    document.body.appendChild(notification);
+    
+    // Adicionar animação CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .notification-close:hover {
+            opacity: 1;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Fechar notificação ao clicar no botão
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        removeNotification(notification);
+    });
+    
+    // Auto-remover após 5 segundos
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            removeNotification(notification);
+        }
+    }, 5000);
+}
+
+// Remover notificação com animação
+function removeNotification(notification) {
+    notification.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.remove();
+        }
+    }, 300);
+}
+
+// Obter ícone da notificação
+function getNotificationIcon(type) {
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    return icons[type] || icons.info;
+}
+
+/* ===================================
+   EFEITOS ADICIONAIS
+   =================================== */
+
+// Smooth scroll para todos os links com #
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const target = document.querySelector(href);
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            const headerHeight = document.querySelector('.header').offsetHeight;
+            const targetPosition = target.offsetTop - headerHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
             });
         }
     });
 });
 
-// === BOTÃO SCROLL TO TOP ===
-const scrollTopBtn = document.getElementById('scroll-top');
-
-function scrollTop() {
-    if (window.scrollY >= 560) {
-        scrollTopBtn.classList.add('show');
-    } else {
-        scrollTopBtn.classList.remove('show');
-    }
-}
-window.addEventListener('scroll', scrollTop);
-
-scrollTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-});
-
-// === ANIMAÇÕES AO SCROLL (Intersection Observer) ===
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in-up');
-            observer.unobserve(entry.target);
-        }
-    });
-}, observerOptions);
-
-// Observar elementos para animação
-const animateElements = document.querySelectorAll('.service__card, .value__card, .about__content, .contact__container');
-animateElements.forEach(el => observer.observe(el));
-
-// === FORMULÁRIO DE CONTATO ===
-const contactForm = document.getElementById('contactForm');
-const notification = document.getElementById('notification');
-const notificationText = document.getElementById('notification-text');
-
-function showNotification(message, duration = 3000) {
-    notificationText.textContent = message;
-    notification.classList.add('show');
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, duration);
-}
-
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        const message = document.getElementById('message').value;
-        
-        // Validação básica
-        if (!name || !email || !message) {
-            showNotification('Por favor, preencha todos os campos obrigatórios.');
-            return;
-        }
-        
-        // Validação de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            showNotification('Por favor, insira um e-mail válido.');
-            return;
-        }
-        
-        // Simular envio de formulário
-        showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-        
-        // Limpar formulário
-        contactForm.reset();
-        
-        // Em produção, aqui você faria uma requisição real para enviar o formulário
-        // Exemplo com fetch:
-        /*
-        fetch('sua-url-de-api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, email, phone, message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            showNotification('Mensagem enviada com sucesso!');
-            contactForm.reset();
-        })
-        .catch(error => {
-            showNotification('Erro ao enviar mensagem. Tente novamente.');
-        });
-        */
-    });
-}
-
-// === VALIDAÇÃO EM TEMPO REAL DOS INPUTS ===
-const formInputs = document.querySelectorAll('.form__input');
-
-formInputs.forEach(input => {
-    input.addEventListener('blur', () => {
-        if (input.value.trim() === '' && input.hasAttribute('required')) {
-            input.style.borderColor = '#e74c3c';
-        } else {
-            input.style.borderColor = '';
-        }
-    });
-    
-    input.addEventListener('focus', () => {
-        input.style.borderColor = '';
-    });
-});
-
-// === EFEITO PARALLAX NO HERO ===
+// Efeito parallax suave no hero
 window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const heroImage = document.querySelector('.hero__image i');
-    if (heroImage) {
-        heroImage.style.transform = `translateY(${scrolled * 0.3}px)`;
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        const scrolled = window.scrollY;
+        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
     }
 });
 
-// === CONTADORES ANIMADOS (se quiser adicionar estatísticas) ===
+// Contador animado (se necessário no futuro)
 function animateCounter(element, target, duration = 2000) {
     let start = 0;
     const increment = target / (duration / 16);
@@ -220,157 +418,6 @@ function animateCounter(element, target, duration = 2000) {
     }, 16);
 }
 
-// === LAZY LOADING DE IMAGENS ===
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    observer.unobserve(img);
-                }
-            }
-        });
-    });
-    
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
-
-// === PREVENÇÃO DE SCROLL HORIZONTAL ===
-function preventHorizontalScroll() {
-    const scrollX = window.scrollX;
-    if (scrollX !== 0) {
-        window.scrollTo(0, window.scrollY);
-    }
-}
-window.addEventListener('scroll', preventHorizontalScroll);
-
-// === DETECÇÃO DE DEVICE ===
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-// Ajustes específicos para mobile
-if (isMobile()) {
-    document.body.classList.add('mobile-device');
-}
-
-// === LOADING STATE ===
-window.addEventListener('load', () => {
-    document.body.classList.add('loaded');
-    
-    // Animação inicial dos elementos visíveis
-    const initialElements = document.querySelectorAll('.hero__content, .hero__image');
-    initialElements.forEach((el, index) => {
-        setTimeout(() => {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-});
-
-// === TRATAMENTO DE ERROS GLOBAL ===
-window.addEventListener('error', (e) => {
-    console.error('Erro capturado:', e.error);
-    // Em produção, você pode enviar erros para um serviço de logging
-});
-
-// === SERVICE WORKER (PWA - Opcional) ===
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // Descomentar quando tiver um service worker
-        /*
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => console.log('SW registrado:', registration))
-            .catch(error => console.log('SW falhou:', error));
-        */
-    });
-}
-
-// === PERFORMANCE MONITORING ===
-if (window.performance && window.performance.timing) {
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const perfData = window.performance.timing;
-            const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-            console.log(`Tempo de carregamento da página: ${pageLoadTime}ms`);
-        }, 0);
-    });
-}
-
-// === ACESSIBILIDADE - NAVEGAÇÃO POR TECLADO ===
-document.addEventListener('keydown', (e) => {
-    // ESC para fechar menu mobile
-    if (e.key === 'Escape' && navMenu.classList.contains('show-menu')) {
-        navMenu.classList.remove('show-menu');
-    }
-    
-    // Tab trap no menu mobile quando aberto
-    if (e.key === 'Tab' && navMenu.classList.contains('show-menu')) {
-        const focusableElements = navMenu.querySelectorAll('a, button, input, [tabindex]:not([tabindex="-1"])');
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-        
-        if (e.shiftKey && document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement.focus();
-        }
-    }
-});
-
-// === CONFIGURAÇÕES GERAIS ===
-const siteConfig = {
-    animationSpeed: 300,
-    scrollOffset: 100,
-    notificationDuration: 3000,
-    lazyLoadOffset: '50px'
-};
-
-// === UTILITÁRIOS ===
-const utils = {
-    debounce: function(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    },
-    
-    throttle: function(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        };
-    },
-    
-    formatDate: function(date) {
-        return new Intl.DateTimeFormat('pt-BR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }).format(date);
-    }
-};
-
-// === INICIALIZAÇÃO ===
-console.log('✅ Grutur - Ecoturismo, Lda - Website carregado com sucesso!');
-console.log('🌿 Tema: Verde Natureza');
-console.log('📱 Responsivo: Ativo');
-console.log('⚡ JavaScript: Funcional');
+// Log de inicialização
+console.log('%cGrutur - Ecoturismo, Lda', 'color: #2d6a4f; font-size: 20px; font-weight: bold;');
+console.log('%cWebsite carregado com sucesso! 🌿', 'color: #52b788; font-size: 14px;');
