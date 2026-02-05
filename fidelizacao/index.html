@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programa de Fidelização Grutur</title>
+    <link rel="stylesheet" href="/fidelizacao/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1><i class="fas fa-taxi"></i> Grutur - Programa de Fidelização</h1>
+            <p>Ganhe pontos e receba descontos exclusivos!</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <button class="nav-btn active" data-section="home"><i class="fas fa-home"></i> Início</button>
+            <button class="nav-btn" data-section="survey"><i class="fas fa-star"></i> Pesquisa</button>
+            <button class="nav-btn" data-section="points"><i class="fas fa-gift"></i> Meus Pontos</button>
+            <button class="nav-btn" data-section="admin"><i class="fas fa-cog"></i> Admin</button>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="section active">
+        <div class="container">
+            <div class="hero">
+                <h2>🎁 Bem-vindo ao Programa de Fidelização!</h2>
+                <p>Ganhe pontos a cada viagem e troque por descontos incríveis!</p>
+            </div>
+
+            <div class="benefits">
+                <h3>Como Funcionar</h3>
+                <div class="benefit-grid">
+                    <div class="benefit-card">
+                        <i class="fas fa-taxi"></i>
+                        <h4>5 Pontos</h4>
+                        <p>Por cada viagem realizada</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-users"></i>
+                        <h4>10 Pontos</h4>
+                        <p>Por indicar um amigo</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-user-plus"></i>
+                        <h4>10 Pontos</h4>
+                        <p>Para o amigo indicado</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h4>5 Pontos</h4>
+                        <p>Por responder pesquisa</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rewards">
+                <h3>Tabela de Recompensas</h3>
+                <div class="rewards-grid">
+                    <div class="reward-card">
+                        <div class="reward-icon">🎫</div>
+                        <h4>50 Pontos</h4>
+                        <p>5% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">🎟️</div>
+                        <h4>100 Pontos</h4>
+                        <p>10% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">🎁</div>
+                        <h4>150 Pontos</h4>
+                        <p>15% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">💎</div>
+                        <h4>200 Pontos</h4>
+                        <p>20% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">👑</div>
+                        <h4>250 Pontos</h4>
+                        <p>25% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">⭐</div>
+                        <h4>300 Pontos</h4>
+                        <p>30% de desconto</p>
+                    </div>
+                    <div class="reward-card highlight">
+                        <div class="reward-icon">🎉</div>
+                        <h4>500 Pontos</h4>
+                        <p>VIAGEM GRÁTIS!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Survey Section -->
+    <section id="survey" class="section">
+        <div class="container">
+            <h2><i class="fas fa-star"></i> Pesquisa de Satisfação</h2>
+            <p>Responda e ganhe 5 pontos extras!</p>
+            
+            <form id="surveyForm" class="form">
+                <div class="form-group">
+                    <label>Telefone *</label>
+                    <input type="tel" id="surveyPhone" required placeholder="+351 XXX XXX XXX">
+                </div>
+
+                <div class="rating-group">
+                    <label>Avaliação Geral</label>
+                    <div class="stars" data-rating="overall">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label>Motorista</label>
+                    <div class="stars" data-rating="driver">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label>Veículo</label>
+                    <div class="stars" data-rating="vehicle">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label>Pontualidade</label>
+                    <div class="stars" data-rating="punctuality">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label>Atendimento</label>
+                    <div class="stars" data-rating="service">
+                        <i class="far fa-star" data-value="1"></i>
+                        <i class="far fa-star" data-value="2"></i>
+                        <i class="far fa-star" data-value="3"></i>
+                        <i class="far fa-star" data-value="4"></i>
+                        <i class="far fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Comentários e Sugestões</label>
+                    <textarea id="surveyComments" rows="4" placeholder="Deixe seu comentário..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Enviar Pesquisa (+5 pontos)
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Points Section -->
+    <section id="points" class="section">
+        <div class="container">
+            <h2><i class="fas fa-gift"></i> Consultar Pontos</h2>
+            
+            <form id="pointsForm" class="form">
+                <div class="form-group">
+                    <label>Telefone *</label>
+                    <input type="tel" id="pointsPhone" required placeholder="+351 XXX XXX XXX">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+            </form>
+
+            <div id="pointsResult" class="points-result" style="display: none;">
+                <div class="points-card">
+                    <div class="points-header">
+                        <h3 id="customerName"></h3>
+                        <div class="points-badge">
+                            <span id="totalPoints">0</span> pontos
+                        </div>
+                    </div>
+
+                    <div class="discount-info">
+                        <h4>Desconto Disponível</h4>
+                        <div class="discount-badge" id="currentDiscount">0%</div>
+                        <p id="discountMessage"></p>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                    <p class="progress-text" id="progressText"></p>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-taxi"></i>
+                            <h4 id="tripCount">0</h4>
+                            <p>Viagens</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <h4 id="referralCount">0</h4>
+                            <p>Indicações</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-star"></i>
+                            <h4 id="surveyCount">0</h4>
+                            <p>Pesquisas</p>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-whatsapp" id="shareWhatsapp">
+                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section id="admin" class="section">
+        <div class="container">
+            <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+
+            <div class="admin-grid">
+                <!-- Registrar Viagem -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-taxi"></i> Registrar Nova Viagem (+5 pontos)</h3>
+                    <form id="tripForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="tripPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem</label>
+                            <input type="text" id="tripOrigin">
+                        </div>
+                        <div class="form-group">
+                            <label>Destino</label>
+                            <input type="text" id="tripDestination">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (€)</label>
+                            <input type="number" id="tripValue" step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Registrar Viagem
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registrar Indicação -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-users"></i> Registrar Indicação</h3>
+                    <p class="info-text">Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!</p>
+                    <form id="referralForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone de Quem Indica *</label>
+                            <input type="tel" id="referrerPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Amigo Indicado *</label>
+                            <input type="text" id="referredName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone do Amigo *</label>
+                            <input type="tel" id="referredPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> Registrar Indicação
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Adicionar Cliente -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-user"></i> Adicionar/Atualizar Cliente</h3>
+                    <form id="customerForm" class="form">
+                        <div class="form-group">
+                            <label>Nome Completo *</label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone *</label>
+                            <input type="tel" id="customerPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar Cliente
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Clientes -->
+                <div class="admin-card full-width">
+                    <h3><i class="fas fa-list"></i> Lista de Clientes</h3>
+                    <div id="customersList">
+                        <p>Carregando clientes...</p>
+                    </div>
+                </div>
+
+                <!-- Enviar Pesquisa -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-paper-plane"></i> Enviar Pesquisa via WhatsApp</h3>
+                    <p class="info-text">Após uma viagem, envie a pesquisa de satisfação para o cliente ganhar 5 pontos extras!</p>
+                    <form id="sendSurveyForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="sendSurveyPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Grutur - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="/fidelizacao/js/main.js"></script>
+</body>
+</html>
