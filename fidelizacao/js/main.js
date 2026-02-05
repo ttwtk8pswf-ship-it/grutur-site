@@ -452,7 +452,13 @@ async function loadCustomers() {
         const container = document.getElementById('customersList');
         
         if (!data.rows || data.rows.length === 0) {
-            container.innerHTML = '<p>Nenhum cliente cadastrado ainda.</p>';
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #666;">
+                    <i class="fas fa-users" style="font-size: 48px; color: #ddd; margin-bottom: 15px;"></i>
+                    <p style="font-size: 16px; margin: 0;">ℹ️ Nenhum cliente cadastrado ainda.</p>
+                    <p style="font-size: 14px; margin-top: 10px; color: #999;">Adicione o primeiro cliente usando o formulário acima!</p>
+                </div>
+            `;
             return;
         }
         
@@ -471,8 +477,13 @@ async function loadCustomers() {
             `).join('');
     } catch (error) {
         console.error('Erro ao carregar clientes:', error);
-        document.getElementById('customersList').innerHTML = 
-            '<p style="color: red;">Erro ao carregar clientes. Tente recarregar a página.</p>';
+        document.getElementById('customersList').innerHTML = `
+            <div style="text-align: center; padding: 40px 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                <p style="color: #e74c3c; font-size: 16px; margin: 0;">⚠️ Erro ao conectar com o servidor.</p>
+                <p style="color: #999; font-size: 14px; margin-top: 10px;">Verifique sua conexão e tente recarregar a página.</p>
+            </div>
+        `;
     }
 }
 
