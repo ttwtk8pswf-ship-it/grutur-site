@@ -6,8 +6,111 @@
     <title>Programa de Fidelização Grutur</title>
     <link rel="stylesheet" href="/fidelizacao/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Modal de Senha */
+        .password-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .password-content {
+            background: white;
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .password-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .password-content input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .password-content input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .password-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .password-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit-password {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit-password:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-cancel-password {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-cancel-password:hover {
+            background: #ccc;
+        }
+
+        .password-error {
+            color: #ff4444;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <!-- Modal de Senha -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-content">
+            <h2><i class="fas fa-lock"></i> Acesso Administrativo</h2>
+            <p>Digite a senha para acessar o painel:</p>
+            <input type="password" id="adminPassword" placeholder="Senha" onkeypress="if(event.key==='Enter') checkPassword()">
+            <div class="password-buttons">
+                <button class="btn-cancel-password" onclick="closePasswordModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn-submit-password" onclick="checkPassword()">
+                    <i class="fas fa-check"></i> Entrar
+                </button>
+            </div>
+            <p id="passwordError" class="password-error" style="display: none;">❌ Senha incorreta!</p>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -22,7 +125,7 @@
             <button class="nav-btn active" data-section="home"><i class="fas fa-home"></i> Início</button>
             <button class="nav-btn" data-section="survey"><i class="fas fa-star"></i> Pesquisa</button>
             <button class="nav-btn" data-section="points"><i class="fas fa-gift"></i> Meus Pontos</button>
-            <button class="nav-btn" data-section="admin"><i class="fas fa-cog"></i> Admin</button>
+            <button class="nav-btn" data-section="admin" onclick="requestAdminAccess(event)"><i class="fas fa-cog"></i> Admin</button>
         </div>
     </nav>
 
@@ -112,7 +215,7 @@
             <form id="surveyForm" class="form">
                 <div class="form-group">
                     <label>Telefone *</label>
-                    <input type="tel" id="surveyPhone" required placeholder="+351 XXX XXX XXX">
+                    <input type="tel" id="surveyPhone" required placeholder="+244 XXX XXX XXX">
                 </div>
 
                 <div class="rating-group">
@@ -190,7 +293,7 @@
             <form id="pointsForm" class="form">
                 <div class="form-group">
                     <label>Telefone *</label>
-                    <input type="tel" id="pointsPhone" required placeholder="+351 XXX XXX XXX">
+                    <input type="tel" id="pointsPhone" required placeholder="+244 XXX XXX XXX">
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i> Consultar
@@ -348,6 +451,68 @@
             <p>&copy; 2026 Grutur - Todos os direitos reservados</p>
         </div>
     </footer>
+
+    <script>
+        // Senha de administrador
+        const ADMIN_PASSWORD = 'GrutuR2026';
+        let adminAuthenticated = false;
+
+        // Função para solicitar acesso admin
+        function requestAdminAccess(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (adminAuthenticated) {
+                // Já autenticado, permite navegação normal
+                showSection('admin');
+            } else {
+                // Pede senha
+                document.getElementById('passwordModal').style.display = 'block';
+                document.getElementById('adminPassword').focus();
+                document.getElementById('passwordError').style.display = 'none';
+            }
+        }
+
+        // Verificar senha
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                adminAuthenticated = true;
+                closePasswordModal();
+                showSection('admin');
+                document.getElementById('adminPassword').value = '';
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // Fechar modal de senha
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+        }
+
+        // Função para mostrar seção
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('passwordModal');
+            if (event.target == modal) {
+                closePasswordModal();
+            }
+        }
+    </script>
 
     <script src="/fidelizacao/js/main.js"></script>
 </body>
