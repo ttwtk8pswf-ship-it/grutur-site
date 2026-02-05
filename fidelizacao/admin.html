@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Programa de Fidelização Grutur</title>
+    <link rel="stylesheet" href="/fidelizacao/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1><i class="fas fa-lock"></i> Painel Administrativo - Grutur</h1>
+            <p>Gestão do Programa de Fidelização</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <a href="/fidelizacao/" class="nav-btn"><i class="fas fa-arrow-left"></i> Voltar ao Site</a>
+        </div>
+    </nav>
+
+    <!-- Admin Section -->
+    <section id="admin" class="section active">
+        <div class="container">
+            <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+
+            <div class="admin-grid">
+                <!-- Registrar Viagem -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-taxi"></i> Registrar Nova Viagem (+5 pontos)</h3>
+                    <form id="tripForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="tripPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem</label>
+                            <input type="text" id="tripOrigin">
+                        </div>
+                        <div class="form-group">
+                            <label>Destino</label>
+                            <input type="text" id="tripDestination">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (€)</label>
+                            <input type="number" id="tripValue" step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Registrar Viagem
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registrar Indicação -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-users"></i> Registrar Indicação</h3>
+                    <p class="info-text">Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!</p>
+                    <form id="referralForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone de Quem Indica *</label>
+                            <input type="tel" id="referrerPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Amigo Indicado *</label>
+                            <input type="text" id="referredName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone do Amigo *</label>
+                            <input type="tel" id="referredPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> Registrar Indicação
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Adicionar Cliente -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-user"></i> Adicionar/Atualizar Cliente</h3>
+                    <form id="customerForm" class="form">
+                        <div class="form-group">
+                            <label>Nome Completo *</label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone *</label>
+                            <input type="tel" id="customerPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar Cliente
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Clientes -->
+                <div class="admin-card full-width">
+                    <h3><i class="fas fa-list"></i> Lista de Clientes</h3>
+                    <div id="customersList">
+                        <p>Carregando clientes...</p>
+                    </div>
+                </div>
+
+                <!-- Enviar Pesquisa -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-paper-plane"></i> Enviar Pesquisa via WhatsApp</h3>
+                    <p class="info-text">Após uma viagem, envie a pesquisa de satisfação para o cliente ganhar 5 pontos extras!</p>
+                    <form id="sendSurveyForm" class="form">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="sendSurveyPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Grutur - Painel Administrativo</p>
+        </div>
+    </footer>
+
+    <script src="/fidelizacao/js/main.js"></script>
+</body>
+</html>
