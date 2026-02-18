@@ -33,7 +33,15 @@ let ratings = {
 // Navegação
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
+        const href = e.target.getAttribute('href');
+        
+        // Se for link externo (admin.html), não prevenir
+        if (href && href.includes('.html')) {
+            return; // Deixa o link funcionar normalmente
+        }
+        
         e.preventDefault();
+
         const target = e.target.getAttribute('href').substring(1);
         
         // Update active nav
