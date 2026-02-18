@@ -1,78 +1,365 @@
-Grutur - Programa de Fidelização
-Ganhe pontos e receba descontos exclusivos!
-Início Pesquisa Meus Pontos Admin
-🎁 Bem-vindo ao Programa de Fidelização!
-Ganhe pontos a cada viagem e troque por descontos incríveis!
-Como Funcionar
-5 Pontos
-Por cada viagem realizada
-10 Pontos
-Por indicar um amigo
-10 Pontos
-Para o amigo indicado
-5 Pontos
-Por responder pesquisa
-Tabela de Recompensas
-🎫
-50 Pontos
-5% de desconto
-🎟️
-100 Pontos
-10% de desconto
-🎁
-150 Pontos
-15% de desconto
-💎
-200 Pontos
-20% de desconto
-👑
-250 Pontos
-25% de desconto
-⭐
-300 Pontos
-30% de desconto
-🎉
-500 Pontos
-VIAGEM GRÁTIS!
-Pesquisa de Satisfação
-Responda e ganhe 5 pontos extras!
-Telefone *
-Avaliação Geral
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programa de Fidelização Grutur</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
 
-Motorista
+    <!-- Modal de Senha para Admin -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-content">
+            <h2><i class="fas fa-lock"></i> Acesso Administrativo</h2>
+            <p>Digite a senha para aceder ao painel:</p>
+            <form onsubmit="checkPassword(); return false;">
+            <input type="password" id="adminPassword" placeholder="Senha" autocomplete="current-password">
+            <div class="password-buttons">
+                <button class="btn-cancel-password" onclick="closePasswordModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn-submit-password" onclick="checkPassword()">
+                    <i class="fas fa-check"></i> Entrar
+                </button>
+            </div>
+            </form>
+            <p id="passwordError" class="password-error" style="display: none;">❌ Senha incorreta!</p>
+        </div>
+    </div>
 
-Veículo
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1><i class="fas fa-taxi"></i> Grutur - Programa de Fidelização</h1>
+            <p>Ganhe pontos e receba descontos exclusivos!</p>
+        </div>
+    </header>
 
-Pontualidade
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <button class="nav-btn active" data-section="home"><i class="fas fa-home"></i> Início</button>
+            <button class="nav-btn" data-section="survey"><i class="fas fa-star"></i> Pesquisa</button>
+            <button class="nav-btn" data-section="points"><i class="fas fa-gift"></i> Meus Pontos</button>
+            <button class="nav-btn" data-section="admin" id="adminBtn"><i class="fas fa-cog"></i> Admin</button>
+        </div>
+    </nav>
 
-Atendimento
+    <!-- HOME -->
+    <section id="home" class="section active">
+        <div class="container">
+            <div class="hero">
+                <h2>🎁 Bem-vindo ao Programa de Fidelização!</h2>
+                <p>Ganhe pontos a cada viagem e troque por descontos incríveis!</p>
+            </div>
+            <div class="benefits">
+                <h3>Como Funciona</h3>
+                <div class="benefit-grid">
+                    <div class="benefit-card">
+                        <i class="fas fa-taxi"></i>
+                        <h4>5 Pontos</h4>
+                        <p>Por cada viagem realizada</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-users"></i>
+                        <h4>10 Pontos</h4>
+                        <p>Por indicar um amigo</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-user-plus"></i>
+                        <h4>10 Pontos</h4>
+                        <p>Para o amigo indicado</p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h4>5 Pontos</h4>
+                        <p>Por responder pesquisa</p>
+                    </div>
+                </div>
+            </div>
+            <div class="rewards">
+                <h3>Tabela de Recompensas</h3>
+                <div class="rewards-grid">
+                    <div class="reward-card">
+                        <div class="reward-icon">🎫</div>
+                        <h4>50 Pontos</h4>
+                        <p>5% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">🎟️</div>
+                        <h4>100 Pontos</h4>
+                        <p>10% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">🎁</div>
+                        <h4>150 Pontos</h4>
+                        <p>15% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">💎</div>
+                        <h4>200 Pontos</h4>
+                        <p>20% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">👑</div>
+                        <h4>250 Pontos</h4>
+                        <p>25% de desconto</p>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-icon">⭐</div>
+                        <h4>300 Pontos</h4>
+                        <p>30% de desconto</p>
+                    </div>
+                    <div class="reward-card highlight">
+                        <div class="reward-icon">🎉</div>
+                        <h4>500 Pontos</h4>
+                        <p>VIAGEM GRÁTIS!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Comentários e Sugestões
-Enviar Pesquisa (+5 pontos)
-Consultar Pontos
-Telefone *
-Consultar
-Painel Administrativo
-Registrar Nova Viagem (+5 pontos)
-Telefone do Cliente *
-Origem
-Destino
-Valor (€)
-Registrar Viagem
-Registrar Indicação
-Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!
-Telefone de Quem Indica *
-Nome do Amigo Indicado *
-Telefone do Amigo *
-Registrar Indicação
-Adicionar/Atualizar Cliente
-Nome Completo *
-Telefone *
-Salvar Cliente
-Lista de Clientes
-Carregando clientes...
-Enviar Pesquisa via WhatsApp
-Após uma viagem, envie a pesquisa de satisfação para o cliente ganhar 5 pontos extras!
-Telefone do Cliente *
-Enviar via WhatsApp
-© 2026 Grutur - Todos os direitos reservados
+    <!-- PESQUISA -->
+    <section id="survey" class="section">
+        <div class="container">
+            <div class="form-container">
+                <h2><i class="fas fa-star"></i> Pesquisa de Satisfação</h2>
+                <p>Responda e ganhe 5 pontos extras!</p>
+                <form id="surveyForm">
+                    <div class="form-group">
+                        <label>Telefone *</label>
+                        <input type="tel" id="surveyPhone" placeholder="+351 912 345 678" required>
+                    </div>
+                    <div class="rating-group">
+                        <label>Avaliação Geral</label>
+                        <div class="stars" id="stars-general">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="rating-group">
+                        <label>Motorista</label>
+                        <div class="stars" id="stars-driver">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="rating-group">
+                        <label>Veículo</label>
+                        <div class="stars" id="stars-vehicle">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="rating-group">
+                        <label>Pontualidade</label>
+                        <div class="stars" id="stars-punctuality">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="rating-group">
+                        <label>Atendimento</label>
+                        <div class="stars" id="stars-service">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Comentários e Sugestões</label>
+                        <textarea id="surveyComments" rows="4" placeholder="Partilhe a sua experiência..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Enviar Pesquisa (+5 pontos)
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- MEUS PONTOS -->
+    <section id="points" class="section">
+        <div class="container">
+            <div class="form-container">
+                <h2><i class="fas fa-gift"></i> Consultar Pontos</h2>
+                <div class="form-group">
+                    <label>Telefone *</label>
+                    <input type="tel" id="pointsPhone" placeholder="+351 912 345 678">
+                </div>
+                <button onclick="checkPoints()" class="btn-primary">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+                <div id="pointsResult" style="display:none; margin-top: 25px;">
+                    <div class="points-display">
+                        <div class="points-circle">
+                            <span id="pointsValue">0</span>
+                            <small>pontos</small>
+                        </div>
+                        <h3 id="customerName"></h3>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText"></p>
+                    </div>
+                    <div id="discountBadge" class="discount-badge" style="display:none;">
+                        <i class="fas fa-tag"></i>
+                        <span id="discountText"></span>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <i class="fas fa-taxi"></i>
+                            <span id="totalTrips">0</span>
+                            <small>Viagens</small>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-users"></i>
+                            <span id="totalReferrals">0</span>
+                            <small>Indicações</small>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-star"></i>
+                            <span id="totalSurveys">0</span>
+                            <small>Pesquisas</small>
+                        </div>
+                    </div>
+                    <button onclick="shareWhatsApp()" class="btn-whatsapp" style="margin-top: 15px;">
+                        <i class="fab fa-whatsapp"></i> Partilhar no WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin" class="section">
+        <div class="container">
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('trip')"><i class="fas fa-taxi"></i> Registrar Viagem</button>
+                <button class="tab-btn" onclick="showTab('referral')"><i class="fas fa-user-plus"></i> Registrar Indicação</button>
+                <button class="tab-btn" onclick="showTab('customer')"><i class="fas fa-users"></i> Gerir Clientes</button>
+                <button class="tab-btn" onclick="showTab('send-survey')"><i class="fab fa-whatsapp"></i> Enviar Pesquisa</button>
+            </div>
+            <!-- Tab: Registrar Viagem -->
+            <div id="tab-trip" class="tab-content active">
+                <div class="form-container">
+                    <h3><i class="fas fa-taxi"></i> Registrar Nova Viagem (+5 pontos)</h3>
+                    <form id="tripForm">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="tripPhone" placeholder="+351 912 345 678" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem</label>
+                            <input type="text" id="tripOrigin" placeholder="Local de partida">
+                        </div>
+                        <div class="form-group">
+                            <label>Destino</label>
+                            <input type="text" id="tripDestination" placeholder="Local de chegada">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (€)</label>
+                            <input type="number" id="tripValue" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-plus"></i> Registrar Viagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- Tab: Registrar Indicação -->
+            <div id="tab-referral" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fas fa-user-plus"></i> Registrar Indicação</h3>
+                    <p class="info-box">Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!</p>
+                    <form id="referralForm">
+                        <div class="form-group">
+                            <label>Telefone de Quem Indica *</label>
+                            <input type="tel" id="referralGiverPhone" placeholder="+351 912 345 678" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Amigo Indicado *</label>
+                            <input type="text" id="referralReceiverName" placeholder="Nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone do Amigo *</label>
+                            <input type="tel" id="referralReceiverPhone" placeholder="+351 912 345 678" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-handshake"></i> Registrar Indicação
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- Tab: Gerir Clientes -->
+            <div id="tab-customer" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fas fa-user-plus"></i> Adicionar / Atualizar Cliente</h3>
+                    <form id="customerForm">
+                        <div class="form-group">
+                            <label>Nome Completo *</label>
+                            <input type="text" id="customerName" placeholder="Nome do cliente" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone *</label>
+                            <input type="tel" id="customerPhone" placeholder="+351 912 345 678" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Guardar Cliente
+                        </button>
+                    </form>
+                </div>
+                <div class="form-container" style="margin-top: 20px;">
+                    <h3><i class="fas fa-list"></i> Lista de Clientes</h3>
+                    <div id="customerList">A carregar clientes...</div>
+                </div>
+            </div>
+            <!-- Tab: Enviar Pesquisa -->
+            <div id="tab-send-survey" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fab fa-whatsapp"></i> Enviar Pesquisa via WhatsApp</h3>
+                    <p class="info-box">Após uma viagem, envie o link de pesquisa de satisfação para o cliente ganhar 5 pontos extras!</p>
+                    <form id="sendSurveyForm">
+                        <div class="form-group">
+                            <label>Telefone do Cliente *</label>
+                            <input type="tel" id="sendSurveyPhone" placeholder="+351 912 345 678" required>
+                        </div>
+                        <button type="submit" class="btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Grutur - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast"></div>
+    <script src="js/main.js"></script>
+</body>
+</html>
