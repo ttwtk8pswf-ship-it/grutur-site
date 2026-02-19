@@ -139,6 +139,16 @@ async function upsertCustomer(name, phone) {
                     surveys: 0
                 })
             });
+                            // Enviar para Google Sheet
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'addCustomer',
+                        nome: name,
+                        telefone: formattedPhone
+                    })
+                }).catch(e => console.log('Sheet sync error:', e));
+
             const newCustomer = await createResponse.json();
             return newCustomer.id;
         }
