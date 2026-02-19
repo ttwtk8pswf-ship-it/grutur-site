@@ -4,101 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Programa de Fidelização Grutur</title>
-    <link rel="stylesheet" href="/fidelizacao/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Modal de Senha */
-        .password-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            animation: fadeIn 0.3s;
-        }
-
-        .password-content {
-            background: white;
-            margin: 10% auto;
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-
-        .password-content h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .password-content input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .password-content input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .password-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .password-buttons button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-submit-password {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-submit-password:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-cancel-password {
-            background: #e0e0e0;
-            color: #666;
-        }
-
-        .btn-cancel-password:hover {
-            background: #ccc;
-        }
-
-        .password-error {
-            color: #ff4444;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
-    <!-- Modal de Senha -->
+
+    <!-- Modal de Senha para Admin -->
     <div id="passwordModal" class="password-modal">
         <div class="password-content">
             <h2><i class="fas fa-lock"></i> Acesso Administrativo</h2>
-            <p>Digite a senha para acessar o painel:</p>
-            <input type="password" id="adminPassword" placeholder="Senha" onkeypress="if(event.key==='Enter') checkPassword()">
+            <p>Digite a senha para aceder ao painel:</p>
+            <form onsubmit="checkPassword(); return false;">
+            <input type="password" id="adminPassword" placeholder="Senha" autocomplete="current-password">
             <div class="password-buttons">
                 <button class="btn-cancel-password" onclick="closePasswordModal()">
                     <i class="fas fa-times"></i> Cancelar
@@ -107,6 +24,7 @@
                     <i class="fas fa-check"></i> Entrar
                 </button>
             </div>
+            </form>
             <p id="passwordError" class="password-error" style="display: none;">❌ Senha incorreta!</p>
         </div>
     </div>
@@ -125,11 +43,11 @@
             <button class="nav-btn active" data-section="home"><i class="fas fa-home"></i> Início</button>
             <button class="nav-btn" data-section="survey"><i class="fas fa-star"></i> Pesquisa</button>
             <button class="nav-btn" data-section="points"><i class="fas fa-gift"></i> Meus Pontos</button>
-            <button class="nav-btn" data-section="admin" onclick="requestAdminAccess(event)"><i class="fas fa-cog"></i> Admin</button>
+            <button class="nav-btn" data-section="admin" id="adminBtn"><i class="fas fa-cog"></i> Admin</button>
         </div>
     </nav>
 
-    <!-- Home Section -->
+    <!-- ====== HOME ====== -->
     <section id="home" class="section active">
         <div class="container">
             <div class="hero">
@@ -138,7 +56,7 @@
             </div>
 
             <div class="benefits">
-                <h3>Como Funcionar</h3>
+                <h3>Como Funciona</h3>
                 <div class="benefit-grid">
                     <div class="benefit-card">
                         <i class="fas fa-taxi"></i>
@@ -206,314 +124,262 @@
         </div>
     </section>
 
-    <!-- Survey Section -->
+    <!-- ====== PESQUISA ====== -->
     <section id="survey" class="section">
         <div class="container">
-            <h2><i class="fas fa-star"></i> Pesquisa de Satisfação</h2>
-            <p>Responda e ganhe 5 pontos extras!</p>
-            
-            <form id="surveyForm" class="form">
-                <div class="form-group">
-                    <label>Telefone *</label>
-                    <input type="tel" id="surveyPhone" required placeholder="+244 XXX XXX XXX">
-                </div>
+            <div class="form-container">
+                <h2><i class="fas fa-star"></i> Pesquisa de Satisfação</h2>
+                <p>Responda e ganhe 5 pontos extras!</p>
 
-                <div class="rating-group">
-                    <label>Avaliação Geral</label>
-                    <div class="stars" data-rating="overall">
-                        <i class="far fa-star" data-value="1"></i>
-                        <i class="far fa-star" data-value="2"></i>
-                        <i class="far fa-star" data-value="3"></i>
-                        <i class="far fa-star" data-value="4"></i>
-                        <i class="far fa-star" data-value="5"></i>
+                <form id="surveyForm">
+                    <div class="form-group">
+                        <label>Telefone *</label>
+                        <input type="tel" id="surveyPhone" placeholder="+351 912 345 678" required>
                     </div>
-                </div>
 
-                <div class="rating-group">
-                    <label>Motorista</label>
-                    <div class="stars" data-rating="driver">
-                        <i class="far fa-star" data-value="1"></i>
-                        <i class="far fa-star" data-value="2"></i>
-                        <i class="far fa-star" data-value="3"></i>
-                        <i class="far fa-star" data-value="4"></i>
-                        <i class="far fa-star" data-value="5"></i>
+                    <div class="rating-group">
+                        <label>Avaliação Geral</label>
+                        <div class="stars" id="stars-general">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="rating-group">
-                    <label>Veículo</label>
-                    <div class="stars" data-rating="vehicle">
-                        <i class="far fa-star" data-value="1"></i>
-                        <i class="far fa-star" data-value="2"></i>
-                        <i class="far fa-star" data-value="3"></i>
-                        <i class="far fa-star" data-value="4"></i>
-                        <i class="far fa-star" data-value="5"></i>
+                    <div class="rating-group">
+                        <label>Motorista</label>
+                        <div class="stars" id="stars-driver">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="rating-group">
-                    <label>Pontualidade</label>
-                    <div class="stars" data-rating="punctuality">
-                        <i class="far fa-star" data-value="1"></i>
-                        <i class="far fa-star" data-value="2"></i>
-                        <i class="far fa-star" data-value="3"></i>
-                        <i class="far fa-star" data-value="4"></i>
-                        <i class="far fa-star" data-value="5"></i>
+                    <div class="rating-group">
+                        <label>Veículo</label>
+                        <div class="stars" id="stars-vehicle">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="rating-group">
-                    <label>Atendimento</label>
-                    <div class="stars" data-rating="service">
-                        <i class="far fa-star" data-value="1"></i>
-                        <i class="far fa-star" data-value="2"></i>
-                        <i class="far fa-star" data-value="3"></i>
-                        <i class="far fa-star" data-value="4"></i>
-                        <i class="far fa-star" data-value="5"></i>
+                    <div class="rating-group">
+                        <label>Pontualidade</label>
+                        <div class="stars" id="stars-punctuality">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Comentários e Sugestões</label>
-                    <textarea id="surveyComments" rows="4" placeholder="Deixe seu comentário..."></textarea>
-                </div>
+                    <div class="rating-group">
+                        <label>Atendimento</label>
+                        <div class="stars" id="stars-service">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                    </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Enviar Pesquisa (+5 pontos)
-                </button>
-            </form>
+                    <div class="form-group">
+                        <label>Comentários e Sugestões</label>
+                        <textarea id="surveyComments" rows="4" placeholder="Partilhe a sua experiência..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Enviar Pesquisa (+5 pontos)
+                    </button>
+                </form>
+            </div>
         </div>
     </section>
 
-    <!-- Points Section -->
+    <!-- ====== MEUS PONTOS ====== -->
     <section id="points" class="section">
         <div class="container">
-            <h2><i class="fas fa-gift"></i> Consultar Pontos</h2>
-            
-            <form id="pointsForm" class="form">
+            <div class="form-container">
+                <h2><i class="fas fa-gift"></i> Consultar Pontos</h2>
+
                 <div class="form-group">
                     <label>Telefone *</label>
-                    <input type="tel" id="pointsPhone" required placeholder="+244 XXX XXX XXX">
+                    <input type="tel" id="pointsPhone" placeholder="+351 912 345 678">
                 </div>
-                <button type="submit" class="btn btn-primary">
+                <button onclick="checkPoints()" class="btn-primary">
                     <i class="fas fa-search"></i> Consultar
                 </button>
-            </form>
 
-            <div id="pointsResult" class="points-result" style="display: none;">
-                <div class="points-card">
-                    <div class="points-header">
-                        <h3 id="customerName"></h3>
-                        <div class="points-badge">
-                            <span id="totalPoints">0</span> pontos
+                <div id="pointsResult" style="display:none; margin-top: 25px;">
+                    <div class="points-display">
+                        <div class="points-circle">
+                            <span id="pointsValue">0</span>
+                            <small>pontos</small>
                         </div>
+                        <h3 id="displayCustomerName"></h3>
                     </div>
-
-                    <div class="discount-info">
-                        <h4>Desconto Disponível</h4>
-                        <div class="discount-badge" id="currentDiscount">0%</div>
-                        <p id="discountMessage"></p>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText"></p>
                     </div>
-
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressBar"></div>
+                    <div id="discountBadge" class="discount-badge" style="display:none;">
+                        <i class="fas fa-tag"></i>
+                        <span id="discountText"></span>
                     </div>
-                    <p class="progress-text" id="progressText"></p>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
+                    <div class="stats-row">
+                        <div class="stat-box">
                             <i class="fas fa-taxi"></i>
-                            <h4 id="tripCount">0</h4>
-                            <p>Viagens</p>
+                            <span id="totalTrips">0</span>
+                            <small>Viagens</small>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-box">
                             <i class="fas fa-users"></i>
-                            <h4 id="referralCount">0</h4>
-                            <p>Indicações</p>
+                            <span id="totalReferrals">0</span>
+                            <small>Indicações</small>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-box">
                             <i class="fas fa-star"></i>
-                            <h4 id="surveyCount">0</h4>
-                            <p>Pesquisas</p>
+                            <span id="totalSurveys">0</span>
+                            <small>Pesquisas</small>
                         </div>
                     </div>
-
-                    <button class="btn btn-whatsapp" id="shareWhatsapp">
-                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                    <button onclick="shareWhatsApp()" class="btn-whatsapp" style="margin-top: 15px;">
+                        <i class="fab fa-whatsapp"></i> Partilhar no WhatsApp
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Admin Section -->
+    <!-- ====== ADMIN ====== -->
     <section id="admin" class="section">
         <div class="container">
-            <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
 
-            <div class="admin-grid">
-                <!-- Registrar Viagem -->
-                <div class="admin-card">
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('trip')"><i class="fas fa-taxi"></i> Registrar Viagem</button>
+                <button class="tab-btn" onclick="showTab('referral')"><i class="fas fa-user-plus"></i> Registrar Indicação</button>
+                <button class="tab-btn" onclick="showTab('customer')"><i class="fas fa-users"></i> Gerir Clientes</button>
+                <button class="tab-btn" onclick="showTab('send-survey')"><i class="fab fa-whatsapp"></i> Enviar Pesquisa</button>
+            </div>
+
+            <!-- Tab: Registrar Viagem -->
+            <div id="tab-trip" class="tab-content active">
+                <div class="form-container">
                     <h3><i class="fas fa-taxi"></i> Registrar Nova Viagem (+5 pontos)</h3>
-                    <form id="tripForm" class="form">
+                    <form id="tripForm">
                         <div class="form-group">
                             <label>Telefone do Cliente *</label>
-                            <input type="tel" id="tripPhone" required>
+                            <input type="tel" id="tripPhone" placeholder="+351 912 345 678" required>
                         </div>
                         <div class="form-group">
                             <label>Origem</label>
-                            <input type="text" id="tripOrigin">
+                            <input type="text" id="tripOrigin" placeholder="Local de partida">
                         </div>
                         <div class="form-group">
                             <label>Destino</label>
-                            <input type="text" id="tripDestination">
+                            <input type="text" id="tripDestination" placeholder="Local de chegada">
                         </div>
                         <div class="form-group">
                             <label>Valor (€)</label>
-                            <input type="number" id="tripValue" step="0.01">
+                            <input type="number" id="tripValue" placeholder="0.00" step="0.01" min="0">
                         </div>
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn-primary">
                             <i class="fas fa-plus"></i> Registrar Viagem
                         </button>
                     </form>
                 </div>
+            </div>
 
-                <!-- Registrar Indicação -->
-                <div class="admin-card">
-                    <h3><i class="fas fa-users"></i> Registrar Indicação</h3>
-                    <p class="info-text">Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!</p>
-                    <form id="referralForm" class="form">
+            <!-- Tab: Registrar Indicação -->
+            <div id="tab-referral" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fas fa-user-plus"></i> Registrar Indicação</h3>
+                    <p class="info-box">Quem indica ganha 10 pontos e o amigo indicado também ganha 10 pontos!</p>
+                    <form id="referralForm">
                         <div class="form-group">
                             <label>Telefone de Quem Indica *</label>
-                            <input type="tel" id="referrerPhone" required>
+                            <input type="tel" id="referralGiverPhone" placeholder="+351 912 345 678" required>
                         </div>
                         <div class="form-group">
                             <label>Nome do Amigo Indicado *</label>
-                            <input type="text" id="referredName" required>
+                            <input type="text" id="referralReceiverName" placeholder="Nome completo" required>
                         </div>
                         <div class="form-group">
                             <label>Telefone do Amigo *</label>
-                            <input type="tel" id="referredPhone" required>
+                            <input type="tel" id="referralReceiverPhone" placeholder="+351 912 345 678" required>
                         </div>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-user-plus"></i> Registrar Indicação
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-handshake"></i> Registrar Indicação
                         </button>
                     </form>
                 </div>
+            </div>
 
-                <!-- Adicionar Cliente -->
-                <div class="admin-card">
-                    <h3><i class="fas fa-user"></i> Adicionar/Atualizar Cliente</h3>
-                    <form id="customerForm" class="form">
+            <!-- Tab: Gerir Clientes -->
+            <div id="tab-customer" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fas fa-user-plus"></i> Adicionar / Atualizar Cliente</h3>
+                    <form id="customerForm">
                         <div class="form-group">
                             <label>Nome Completo *</label>
-                            <input type="text" id="customerName" required>
+                            <input type="text" id="customerNameInput" placeholder="Nome do cliente" required>
                         </div>
                         <div class="form-group">
                             <label>Telefone *</label>
-                            <input type="tel" id="customerPhone" required>
+                            <input type="tel" id="customerPhone" placeholder="+351 912 345 678" required>
                         </div>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Salvar Cliente
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Guardar Cliente
                         </button>
                     </form>
                 </div>
-
-                <!-- Lista de Clientes -->
-                <div class="admin-card full-width">
+                <div class="form-container" style="margin-top: 20px;">
                     <h3><i class="fas fa-list"></i> Lista de Clientes</h3>
-                    <div id="customersList">
-                        <p>Carregando clientes...</p>
-                    </div>
+                    <div id="customerList">A carregar clientes...</div>
                 </div>
+            </div>
 
-                <!-- Enviar Pesquisa -->
-                <div class="admin-card">
-                    <h3><i class="fas fa-paper-plane"></i> Enviar Pesquisa via WhatsApp</h3>
-                    <p class="info-text">Após uma viagem, envie a pesquisa de satisfação para o cliente ganhar 5 pontos extras!</p>
-                    <form id="sendSurveyForm" class="form">
+            <!-- Tab: Enviar Pesquisa -->
+            <div id="tab-send-survey" class="tab-content">
+                <div class="form-container">
+                    <h3><i class="fab fa-whatsapp"></i> Enviar Pesquisa via WhatsApp</h3>
+                    <p class="info-box">Após uma viagem, envie o link de pesquisa de satisfação para o cliente ganhar 5 pontos extras!</p>
+                    <form id="sendSurveyForm">
                         <div class="form-group">
                             <label>Telefone do Cliente *</label>
-                            <input type="tel" id="sendSurveyPhone" required>
+                            <input type="tel" id="sendSurveyPhone" placeholder="+351 912 345 678" required>
                         </div>
-                        <button type="submit" class="btn btn-whatsapp">
+                        <button type="submit" class="btn-whatsapp">
                             <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
                         </button>
                     </form>
                 </div>
             </div>
+
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Grutur - Todos os direitos reservados</p>
+            <p>© 2026 Grutur - Todos os direitos reservados</p>
         </div>
     </footer>
 
-    <script>
-        // Senha de administrador
-        const ADMIN_PASSWORD = 'GrutuR2026';
-        let adminAuthenticated = false;
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
 
-        // Função para solicitar acesso admin
-        function requestAdminAccess(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            if (adminAuthenticated) {
-                // Já autenticado, permite navegação normal
-                showSection('admin');
-            } else {
-                // Pede senha
-                document.getElementById('passwordModal').style.display = 'block';
-                document.getElementById('adminPassword').focus();
-                document.getElementById('passwordError').style.display = 'none';
-            }
-        }
-
-        // Verificar senha
-        function checkPassword() {
-            const password = document.getElementById('adminPassword').value;
-            
-            if (password === ADMIN_PASSWORD) {
-                adminAuthenticated = true;
-                closePasswordModal();
-                showSection('admin');
-                document.getElementById('adminPassword').value = '';
-            } else {
-                document.getElementById('passwordError').style.display = 'block';
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminPassword').focus();
-            }
-        }
-
-        // Fechar modal de senha
-        function closePasswordModal() {
-            document.getElementById('passwordModal').style.display = 'none';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('passwordError').style.display = 'none';
-        }
-
-        // Função para mostrar seção
-        function showSection(sectionName) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionName).classList.add('active');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
-        }
-
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
-            const modal = document.getElementById('passwordModal');
-            if (event.target == modal) {
-                closePasswordModal();
-            }
-        }
-    </script>
-
-    <script src="/fidelizacao/js/main.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
