@@ -18,6 +18,8 @@ const DISCOUNTS = [
 
 // Base URL para API
 const API_BASE = 'https://api.genspark.ai/v1/agents/4d898592-9e7c-48a0-8fe9-1f7654d73e91/tables';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz61dhsq9NXu1SsTjbKZ7GoC-edUqbk6nLsGy9kU5GJsTG0bzR3QjWnwvKHymYbLNElg/exec';
+
 
 // Navegação entre seções
 document.querySelectorAll('.nav-btn').forEach(btn => {
