@@ -35,12 +35,14 @@ const ratings = { general: 0, driver: 0, vehicle: 0, punctuality: 0, service: 0 
 // FUNÇÕES GOOGLE SHEET
 // =============================================
 
+// Chamar o Google Script (GET)
 async function sheetGet(params) {
     const url = GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(params).toString();
     const res = await fetch(url);
     return await res.json();
 }
 
+// Chamar o Google Script (POST)
 async function sheetPost(data) {
     const res = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
@@ -49,6 +51,7 @@ async function sheetPost(data) {
     return await res.json();
 }
 
+// Buscar cliente por telefone
 async function getCustomer(phone) {
     const result = await sheetGet({ action: 'getCustomer', telefone: phone });
     if (result.success) return result.cliente;
@@ -247,11 +250,12 @@ function displayPoints(customer) {
     const pontos = parseInt(customer.pontos || 0);
 
     document.getElementById('pointsValue').textContent = pontos;
-    document.getElementById('customerName').textContent = customer.nome || '';
+    document.getElementById('displayCustomerName').textContent = customer.nome || '';
     document.getElementById('totalTrips').textContent = customer.viagens || 0;
     document.getElementById('totalReferrals').textContent = customer.indicacoes || 0;
     document.getElementById('totalSurveys').textContent = customer.pesquisas || 0;
 
+    // Desconto disponível
     let descontoActual = null;
     for (let i = DESCONTOS.length - 1; i >= 0; i--) {
         if (pontos >= DESCONTOS[i].pontos) {
@@ -270,6 +274,7 @@ function displayPoints(customer) {
         discountBadge.style.display = 'none';
     }
 
+    // Próximo desconto
     let proximo = null;
     for (let d of DESCONTOS) {
         if (pontos < d.pontos) { proximo = d; break; }
@@ -291,8 +296,9 @@ function displayPoints(customer) {
     document.getElementById('pointsResult').style.display = 'block';
 }
 
+// Partilhar no WhatsApp
 function shareWhatsApp() {
-    const nome = document.getElementById('customerName').textContent;
+    const nome = document.getElementById('displayCustomerName').textContent;
     const pontos = document.getElementById('pointsValue').textContent;
     const desconto = (() => {
         for (let i = DESCONTOS.length - 1; i >= 0; i--) {
@@ -370,12 +376,14 @@ document.getElementById('referralForm').addEventListener('submit', async functio
     }
 
     try {
+        // Quem indica
         const giver = await getCustomer(giverPhone);
         if (!giver) {
             showToast('Cliente que indica não encontrado. Registe-o primeiro.', true);
             return;
         }
 
+        // Amigo indicado — criar se não existir
         let receiver = await getCustomer(receiverPhone);
         if (!receiver) {
             await sheetPost({
@@ -398,6 +406,7 @@ document.getElementById('referralForm').addEventListener('submit', async functio
             });
         }
 
+        // Pontos para quem indica
         await sheetPost({
             action: 'updatePoints',
             telefone: giverPhone,
@@ -422,7 +431,7 @@ document.getElementById('referralForm').addEventListener('submit', async functio
 document.getElementById('customerForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const name = document.getElementById('customerName').value.trim();
+    const name = document.getElementById('customerNameInput').value.trim();
     const phone = document.getElementById('customerPhone').value.trim();
 
     if (!name || !phone) {
@@ -457,6 +466,7 @@ document.getElementById('customerForm').addEventListener('submit', async functio
     }
 });
 
+// Carregar lista de clientes
 async function loadCustomers() {
     const listEl = document.getElementById('customerList');
     listEl.innerHTML = '<p style="color:#666;">A carregar...</p>';
