@@ -1,504 +1,508 @@
-// Constantes do Sistema
-const POINTS = {
-    TRIP: 5,
-    REFERRAL_GIVER: 10,
-    REFERRAL_RECEIVER: 10,
-    SURVEY: 5
-};
+// =============================================
+// GRUTUR - SISTEMA DE FIDELIZAÇÃO
+// Versão Google Sheets
+// =============================================
 
-const DISCOUNTS = [
-    { points: 50, discount: 5 },
-    { points: 100, discount: 10 },
-    { points: 150, discount: 15 },
-    { points: 200, discount: 20 },
-    { points: 250, discount: 25 },
-    { points: 300, discount: 30 },
-    { points: 500, discount: 'FREE' }
-];
-
-// Base URL para API
-const API_BASE = 'https://api.genspark.ai/v1/agents/4d898592-9e7c-48a0-8fe9-1f7654d73e91/tables';
+// URL do Google Apps Script
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz61dhsq9NXu1SsTjbKZ7GoC-edUqbk6nLsGy9kU5GJsTG0bzR3QjWnwvKHymYbLNElg/exec';
 
+// Sistema de Pontos
+const PONTOS = {
+    VIAGEM: 5,
+    INDICACAO: 10,
+    AMIGO_INDICADO: 10,
+    PESQUISA: 5
+};
 
-// Navegação entre seções
-document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const section = btn.dataset.section;
-        
-        // Atualizar botões ativos
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        // Mostrar seção correta
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(section).classList.add('active');
-    });
-});
+// Tabela de Descontos
+const DESCONTOS = [
+    { pontos: 50,  desconto: 5 },
+    { pontos: 100, desconto: 10 },
+    { pontos: 150, desconto: 15 },
+    { pontos: 200, desconto: 20 },
+    { pontos: 250, desconto: 25 },
+    { pontos: 300, desconto: 30 },
+    { pontos: 500, desconto: 100, viagemGratis: true }
+];
 
-// Sistema de Avaliação por Estrelas
-document.querySelectorAll('.stars').forEach(starContainer => {
-    const stars = starContainer.querySelectorAll('i');
-    
-    stars.forEach((star, index) => {
-        star.addEventListener('click', () => {
-            // Remover todas as estrelas ativas
-            stars.forEach(s => s.classList.remove('active', 'fas'));
-            stars.forEach(s => s.classList.add('far'));
-            
-            // Ativar estrelas até o índice clicado
-            for (let i = 0; i <= index; i++) {
-                stars[i].classList.remove('far');
-                stars[i].classList.add('fas', 'active');
-            }
-            
-            // Armazenar valor
-            starContainer.dataset.value = index + 1;
-        });
-        
-        // Hover effect
-        star.addEventListener('mouseenter', () => {
-            stars.forEach((s, i) => {
-                if (i <= index) {
-                    s.classList.remove('far');
-                    s.classList.add('fas');
-                } else {
-                    s.classList.remove('fas');
-                    s.classList.add('far');
-                }
-            });
-        });
-    });
-    
-    starContainer.addEventListener('mouseleave', () => {
-        const value = starContainer.dataset.value || 0;
-        stars.forEach((s, i) => {
-            if (i < value) {
-                s.classList.remove('far');
-                s.classList.add('fas', 'active');
-            } else {
-                s.classList.remove('fas', 'active');
-                s.classList.add('far');
-            }
-        });
-    });
-});
+// Senha Admin
+const ADMIN_PASSWORD = 'grutur2024';
 
-// Calcular Desconto
-function calculateDiscount(points) {
-    let currentDiscount = 0;
-    let nextMilestone = DISCOUNTS[0];
-    
-    for (let i = DISCOUNTS.length - 1; i >= 0; i--) {
-        if (points >= DISCOUNTS[i].points) {
-            currentDiscount = DISCOUNTS[i].discount;
-            nextMilestone = DISCOUNTS[i + 1] || null;
-            break;
-        } else {
-            nextMilestone = DISCOUNTS[i];
-        }
-    }
-    
-    return { currentDiscount, nextMilestone };
+// Estado das estrelas
+const ratings = { general: 0, driver: 0, vehicle: 0, punctuality: 0, service: 0 };
+
+// =============================================
+// FUNÇÕES GOOGLE SHEET
+// =============================================
+
+async function sheetGet(params) {
+    const url = GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url);
+    return await res.json();
 }
 
-// Formatar Telefone
-function formatPhone(phone) {
-    return phone.replace(/\D/g, '');
+async function sheetPost(data) {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    return await res.json();
 }
 
-// Adicionar/Atualizar Cliente
-async function upsertCustomer(name, phone) {
-    const formattedPhone = formatPhone(phone);
-    
-    try {
-        // Verificar se cliente existe
-        const response = await fetch(`${API_BASE}/customers/rows?phone=${formattedPhone}`);
-        const data = await response.json();
-        
-        if (data.rows && data.rows.length > 0) {
-            // Atualizar cliente existente
-            const customer = data.rows[0];
-            await fetch(`${API_BASE}/customers/rows/${customer.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            });
-            return customer.id;
-        } else {
-            // Criar novo cliente
-            const createResponse = await fetch(`${API_BASE}/customers/rows`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name,
-                    phone: formattedPhone,
-                    points: 0,
-                    trips: 0,
-                    referrals: 0,
-                    surveys: 0
-                })
-            });
-                            // Enviar para Google Sheet
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'addCustomer',
-                        nome: name,
-                        telefone: formattedPhone
-                    })
-                }).catch(e => console.log('Sheet sync error:', e));
-
-            const newCustomer = await createResponse.json();
-            return newCustomer.id;
-        }
-    } catch (error) {
-        console.error('Erro ao processar cliente:', error);
-        throw error;
-    }
-}
-
-// Buscar Cliente
 async function getCustomer(phone) {
-    const formattedPhone = formatPhone(phone);
-    
-    try {
-        const response = await fetch(`${API_BASE}/customers/rows?phone=${formattedPhone}`);
-        const data = await response.json();
-        
-        if (data.rows && data.rows.length > 0) {
-            return data.rows[0];
+    const result = await sheetGet({ action: 'getCustomer', telefone: phone });
+    if (result.success) return result.cliente;
+    return null;
+}
+
+// =============================================
+// NAVEGAÇÃO
+// =============================================
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const section = this.getAttribute('data-section');
+        if (section === 'admin') {
+            openPasswordModal();
+            return;
         }
-        return null;
-    } catch (error) {
-        console.error('Erro ao buscar cliente:', error);
-        return null;
+        navigateTo(section);
+    });
+});
+
+function navigateTo(sectionId) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+    const targetBtn = document.querySelector(`.nav-btn[data-section="${sectionId}"]`);
+    const targetSection = document.getElementById(sectionId);
+
+    if (targetBtn) targetBtn.classList.add('active');
+    if (targetSection) targetSection.classList.add('active');
+
+    if (sectionId === 'admin') {
+        loadCustomers();
     }
 }
 
-// Atualizar Pontos do Cliente
-async function updateCustomerPoints(customerId, pointsToAdd, field) {
-    try {
-        const response = await fetch(`${API_BASE}/customers/rows/${customerId}`);
-        const customer = await response.json();
-        
-        const updates = {
-            points: customer.points + pointsToAdd
-        };
-        
-        if (field) {
-            updates[field] = (customer[field] || 0) + 1;
-        }
-        
-        await fetch(`${API_BASE}/customers/rows/${customerId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
-        });
-        
-        return updates.points;
-    } catch (error) {
-        console.error('Erro ao atualizar pontos:', error);
-        throw error;
+// =============================================
+// MODAL DE SENHA ADMIN
+// =============================================
+function openPasswordModal() {
+    document.getElementById('passwordModal').style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('passwordError').style.display = 'none';
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+}
+
+function checkPassword() {
+    const password = document.getElementById('adminPassword').value;
+    if (password === ADMIN_PASSWORD) {
+        closePasswordModal();
+        navigateTo('admin');
+    } else {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
     }
 }
 
-// Form: Adicionar Cliente
-document.getElementById('customerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const name = document.getElementById('customerName').value;
-    const phone = document.getElementById('customerPhone').value;
-    
-    try {
-        await upsertCustomer(name, phone);
-        alert('✅ Cliente salvo com sucesso!');
-        document.getElementById('customerForm').reset();
-        loadCustomers();
-    } catch (error) {
-        alert('❌ Erro ao salvar cliente. Tente novamente.');
-    }
+document.getElementById('passwordModal').addEventListener('click', function (e) {
+    if (e.target === this) closePasswordModal();
 });
 
-// Form: Registrar Viagem
-document.getElementById('tripForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const phone = document.getElementById('tripPhone').value;
-    const origin = document.getElementById('tripOrigin').value;
-    const destination = document.getElementById('tripDestination').value;
-    const value = document.getElementById('tripValue').value;
-    
-    try {
-        const customer = await getCustomer(phone);
-        
-        if (!customer) {
-            alert('❌ Cliente não encontrado. Por favor, cadastre o cliente primeiro.');
-            return;
-        }
-        
-        // Registrar viagem
-        await fetch(`${API_BASE}/trips/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_id: customer.id,
-                origin,
-                destination,
-                value: parseFloat(value) || 0,
-                date: new Date().toISOString()
-            })
+// =============================================
+// TABS ADMIN
+// =============================================
+function showTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if (tabName === 'customer') {
+        loadCustomers();
+    }
+}
+
+// =============================================
+// TOAST
+// =============================================
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => { toast.className = 'toast'; }, 3500);
+}
+
+// =============================================
+// ESTRELAS
+// =============================================
+document.querySelectorAll('.stars').forEach(starsEl => {
+    const category = starsEl.id.replace('stars-', '');
+    const stars = starsEl.querySelectorAll('.star');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function () {
+            const val = parseInt(this.getAttribute('data-value'));
+            ratings[category] = val;
+            updateStars(starsEl, val);
         });
-        
-        // Adicionar pontos
-        const newPoints = await updateCustomerPoints(customer.id, POINTS.TRIP, 'trips');
-        
-        alert(`✅ Viagem registrada!\n${customer.name} ganhou ${POINTS.TRIP} pontos.\nTotal: ${newPoints} pontos`);
-        document.getElementById('tripForm').reset();
-        loadCustomers();
-    } catch (error) {
-        alert('❌ Erro ao registrar viagem. Tente novamente.');
-    }
-});
 
-// Form: Registrar Indicação
-document.getElementById('referralForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const referrerPhone = document.getElementById('referrerPhone').value;
-    const referredName = document.getElementById('referredName').value;
-    const referredPhone = document.getElementById('referredPhone').value;
-    
-    try {
-        const referrer = await getCustomer(referrerPhone);
-        
-        if (!referrer) {
-            alert('❌ Cliente indicador não encontrado.');
-            return;
-        }
-        
-        // Criar ou buscar cliente indicado
-        const referredId = await upsertCustomer(referredName, referredPhone);
-        
-        // Registrar indicação
-        await fetch(`${API_BASE}/referrals/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                referrer_id: referrer.id,
-                referred_id: referredId,
-                date: new Date().toISOString()
-            })
+        star.addEventListener('mouseenter', function () {
+            const val = parseInt(this.getAttribute('data-value'));
+            updateStars(starsEl, val);
         });
-        
-        // Adicionar pontos para quem indicou
-        const referrerPoints = await updateCustomerPoints(referrer.id, POINTS.REFERRAL_GIVER, 'referrals');
-        
-        // Adicionar pontos para quem foi indicado
-        const referredPoints = await updateCustomerPoints(referredId, POINTS.REFERRAL_RECEIVER);
-        
-        alert(`✅ Indicação registrada!\n\n${referrer.name} ganhou ${POINTS.REFERRAL_GIVER} pontos (Total: ${referrerPoints})\n${referredName} ganhou ${POINTS.REFERRAL_RECEIVER} pontos (Total: ${referredPoints})`);
-        document.getElementById('referralForm').reset();
-        loadCustomers();
-    } catch (error) {
-        alert('❌ Erro ao registrar indicação. Tente novamente.');
-    }
+    });
+
+    starsEl.addEventListener('mouseleave', function () {
+        updateStars(starsEl, ratings[category] || 0);
+    });
 });
 
-// Form: Pesquisa de Satisfação
-document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+function updateStars(container, value) {
+    container.querySelectorAll('.star').forEach((s, i) => {
+        s.classList.toggle('active', i < value);
+    });
+}
+
+// =============================================
+// PESQUISA DE SATISFAÇÃO
+// =============================================
+document.getElementById('surveyForm').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    const phone = document.getElementById('surveyPhone').value;
-    const overall = document.querySelector('[data-rating="overall"]').dataset.value || 0;
-    const driver = document.querySelector('[data-rating="driver"]').dataset.value || 0;
-    const vehicle = document.querySelector('[data-rating="vehicle"]').dataset.value || 0;
-    const punctuality = document.querySelector('[data-rating="punctuality"]').dataset.value || 0;
-    const service = document.querySelector('[data-rating="service"]').dataset.value || 0;
-    const comments = document.getElementById('surveyComments').value;
-    
-    if (!overall || !driver || !vehicle || !punctuality || !service) {
-        alert('❌ Por favor, avalie todos os itens com estrelas.');
+
+    const phone = document.getElementById('surveyPhone').value.trim();
+    if (!phone) {
+        showToast('Por favor, insira o número de telefone.', true);
         return;
     }
-    
+
+    if (!ratings.general && !ratings.driver && !ratings.vehicle && !ratings.punctuality && !ratings.service) {
+        showToast('Por favor, faça pelo menos uma avaliação.', true);
+        return;
+    }
+
     try {
         const customer = await getCustomer(phone);
-        
         if (!customer) {
-            alert('❌ Cliente não encontrado. Verifique o telefone.');
+            showToast('Cliente não encontrado. Peça ao administrador para o registar.', true);
             return;
         }
-        
-        // Registrar pesquisa
-        await fetch(`${API_BASE}/surveys/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_id: customer.id,
-                overall_rating: parseInt(overall),
-                driver_rating: parseInt(driver),
-                vehicle_rating: parseInt(vehicle),
-                punctuality_rating: parseInt(punctuality),
-                service_rating: parseInt(service),
-                comments,
-                date: new Date().toISOString()
-            })
+
+        const newPoints = parseInt(customer.pontos || 0) + PONTOS.PESQUISA;
+        const newSurveys = parseInt(customer.pesquisas || 0) + 1;
+
+        await sheetPost({
+            action: 'updatePoints',
+            telefone: phone,
+            pontos: newPoints,
+            viagens: customer.viagens || 0,
+            indicacoes: customer.indicacoes || 0,
+            pesquisas: newSurveys
         });
-        
-        // Adicionar pontos
-        const newPoints = await updateCustomerPoints(customer.id, POINTS.SURVEY, 'surveys');
-        
-        alert(`✅ Pesquisa enviada com sucesso!\n${customer.name} ganhou ${POINTS.SURVEY} pontos de bônus.\nTotal: ${newPoints} pontos`);
-        document.getElementById('surveyForm').reset();
-        
-        // Resetar estrelas
-        document.querySelectorAll('.stars').forEach(container => {
-            container.dataset.value = 0;
-            container.querySelectorAll('i').forEach(star => {
-                star.classList.remove('fas', 'active');
-                star.classList.add('far');
-            });
-        });
-    } catch (error) {
-        alert('❌ Erro ao enviar pesquisa. Tente novamente.');
+
+        showToast(`✅ Obrigado! Ganhou ${PONTOS.PESQUISA} pontos. Total: ${newPoints} pontos!`);
+
+        this.reset();
+        Object.keys(ratings).forEach(k => { ratings[k] = 0; });
+        document.querySelectorAll('.stars').forEach(s => updateStars(s, 0));
+
+    } catch (err) {
+        console.error('Erro na pesquisa:', err);
+        showToast('Erro ao enviar pesquisa. Tente novamente.', true);
     }
 });
 
-// Form: Consultar Pontos
-document.getElementById('pointsForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const phone = document.getElementById('pointsPhone').value;
-    
+// =============================================
+// CONSULTAR PONTOS
+// =============================================
+async function checkPoints() {
+    const phone = document.getElementById('pointsPhone').value.trim();
+    if (!phone) {
+        showToast('Por favor, insira o número de telefone.', true);
+        return;
+    }
+
     try {
         const customer = await getCustomer(phone);
-        
         if (!customer) {
-            alert('❌ Cliente não encontrado. Verifique o telefone.');
+            showToast('Cliente não encontrado.', true);
+            document.getElementById('pointsResult').style.display = 'none';
             return;
         }
-        
-        // Calcular desconto
-        const { currentDiscount, nextMilestone } = calculateDiscount(customer.points);
-        
-        // Mostrar resultados
-        document.getElementById('customerName').textContent = customer.name;
-        document.getElementById('totalPoints').textContent = customer.points;
-        document.getElementById('tripCount').textContent = customer.trips || 0;
-        document.getElementById('referralCount').textContent = customer.referrals || 0;
-        document.getElementById('surveyCount').textContent = customer.surveys || 0;
-        
-        const discountBadge = document.getElementById('currentDiscount');
-        if (currentDiscount === 'FREE') {
-            discountBadge.textContent = '🎉 VIAGEM GRÁTIS!';
-            document.getElementById('discountMessage').textContent = 'Parabéns! Você conquistou uma viagem grátis!';
-        } else if (currentDiscount > 0) {
-            discountBadge.textContent = `${currentDiscount}%`;
-            if (nextMilestone) {
-                const pointsNeeded = nextMilestone.points - customer.points;
-                document.getElementById('discountMessage').textContent = 
-                    `Faltam ${pointsNeeded} pontos para ${nextMilestone.discount === 'FREE' ? 'viagem grátis' : nextMilestone.discount + '% de desconto'}!`;
-            } else {
-                document.getElementById('discountMessage').textContent = 'Você alcançou o desconto máximo!';
-            }
-        } else {
-            discountBadge.textContent = '0%';
-            document.getElementById('discountMessage').textContent = 
-                `Faltam ${nextMilestone.points - customer.points} pontos para ${nextMilestone.discount}% de desconto!`;
-        }
-        
-        // Barra de progresso
-        if (nextMilestone) {
-            const progress = (customer.points / nextMilestone.points) * 100;
-            document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
-            document.getElementById('progressText').textContent = 
-                `${customer.points} / ${nextMilestone.points} pontos`;
-        } else {
-            document.getElementById('progressBar').style.width = '100%';
-            document.getElementById('progressText').textContent = 'Nível máximo alcançado!';
-        }
-        
-        document.getElementById('pointsResult').style.display = 'block';
-        
-        // Configurar botão WhatsApp
-        document.getElementById('shareWhatsapp').onclick = () => {
-            const message = `🎁 Meus Pontos Grutur 🚖\n\n` +
-                `Total: ${customer.points} pontos\n` +
-                `Desconto atual: ${currentDiscount === 'FREE' ? 'Viagem Grátis!' : currentDiscount + '%'}\n` +
-                `Viagens: ${customer.trips || 0}\n` +
-                `Indicações: ${customer.referrals || 0}\n\n` +
-                `Participe você também!`;
-            
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        };
-        
-    } catch (error) {
-        alert('❌ Erro ao consultar pontos. Tente novamente.');
-    }
-});
+        displayPoints(customer);
 
-// Form: Enviar Pesquisa via WhatsApp
-document.getElementById('sendSurveyForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const phone = document.getElementById('sendSurveyPhone').value;
-    const formattedPhone = formatPhone(phone);
-    
-    const surveyUrl = window.location.origin + window.location.pathname + '#survey';
-    const message = `🌟 Grutur - Pesquisa de Satisfação\n\n` +
-        `Olá! Agradecemos por utilizar nossos serviços.\n\n` +
-        `Sua opinião é muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n` +
-        `${surveyUrl}\n\n` +
-        `Obrigado! 🚖`;
-    
-    window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
-});
-
-// Carregar Lista de Clientes
-async function loadCustomers() {
-    try {
-        const response = await fetch(`${API_BASE}/customers/rows`);
-        const data = await response.json();
-        
-        const container = document.getElementById('customersList');
-        
-        if (!data.rows || data.rows.length === 0) {
-            container.innerHTML = '<p>Nenhum cliente cadastrado ainda.</p>';
-            return;
-        }
-        
-        container.innerHTML = data.rows
-            .sort((a, b) => b.points - a.points)
-            .map(customer => `
-                <div class="customer-item">
-                    <div class="customer-info">
-                        <h4>${customer.name}</h4>
-                        <p>📱 ${customer.phone} | 🚖 ${customer.trips || 0} viagens | 👥 ${customer.referrals || 0} indicações</p>
-                    </div>
-                    <div class="customer-points">
-                        ${customer.points} pontos
-                    </div>
-                </div>
-            `).join('');
-    } catch (error) {
-        console.error('Erro ao carregar clientes:', error);
-        document.getElementById('customersList').innerHTML = 
-            '<p style="color: red;">Erro ao carregar clientes. Tente recarregar a página.</p>';
+    } catch (err) {
+        console.error('Erro ao consultar pontos:', err);
+        showToast('Erro ao consultar pontos.', true);
     }
 }
 
-// Carregar clientes ao abrir a seção admin
-document.querySelector('[data-section="admin"]').addEventListener('click', loadCustomers);
+function displayPoints(customer) {
+    const pontos = parseInt(customer.pontos || 0);
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    // Verificar se há hash na URL (ex: #survey)
-    if (window.location.hash) {
-        const section = window.location.hash.substring(1);
-        const btn = document.querySelector(`[data-section="${section}"]`);
-        if (btn) {
-            btn.click();
+    document.getElementById('pointsValue').textContent = pontos;
+    document.getElementById('customerName').textContent = customer.nome || '';
+    document.getElementById('totalTrips').textContent = customer.viagens || 0;
+    document.getElementById('totalReferrals').textContent = customer.indicacoes || 0;
+    document.getElementById('totalSurveys').textContent = customer.pesquisas || 0;
+
+    let descontoActual = null;
+    for (let i = DESCONTOS.length - 1; i >= 0; i--) {
+        if (pontos >= DESCONTOS[i].pontos) {
+            descontoActual = DESCONTOS[i];
+            break;
         }
     }
+
+    const discountBadge = document.getElementById('discountBadge');
+    if (descontoActual) {
+        document.getElementById('discountText').textContent = descontoActual.viagemGratis
+            ? '🎉 Viagem GRÁTIS Disponível!'
+            : `${descontoActual.desconto}% de Desconto Disponível!`;
+        discountBadge.style.display = 'flex';
+    } else {
+        discountBadge.style.display = 'none';
+    }
+
+    let proximo = null;
+    for (let d of DESCONTOS) {
+        if (pontos < d.pontos) { proximo = d; break; }
+    }
+
+    if (proximo) {
+        const prev = descontoActual ? descontoActual.pontos : 0;
+        const range = proximo.pontos - prev;
+        const progress = ((pontos - prev) / range) * 100;
+        document.getElementById('progressFill').style.width = Math.max(2, progress) + '%';
+        document.getElementById('progressText').textContent = proximo.viagemGratis
+            ? `Faltam ${proximo.pontos - pontos} pontos para VIAGEM GRÁTIS!`
+            : `Faltam ${proximo.pontos - pontos} pontos para ${proximo.desconto}% de desconto`;
+    } else {
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressText').textContent = '🏆 Nível máximo atingido!';
+    }
+
+    document.getElementById('pointsResult').style.display = 'block';
+}
+
+function shareWhatsApp() {
+    const nome = document.getElementById('customerName').textContent;
+    const pontos = document.getElementById('pointsValue').textContent;
+    const desconto = (() => {
+        for (let i = DESCONTOS.length - 1; i >= 0; i--) {
+            if (parseInt(pontos) >= DESCONTOS[i].pontos) return DESCONTOS[i];
+        }
+        return null;
+    })();
+
+    let msg = `🚖 *Grutur - Programa de Fidelização*\n\n`;
+    msg += `👤 ${nome}\n`;
+    msg += `⭐ ${pontos} pontos acumulados\n\n`;
+    if (desconto) {
+        msg += desconto.viagemGratis
+            ? `🎉 Tenho uma VIAGEM GRÁTIS disponível!\n\n`
+            : `💰 Desconto disponível: ${desconto.desconto}%\n\n`;
+    }
+    msg += `Junte-se ao Programa Grutur! 🎁`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// =============================================
+// ADMIN: REGISTAR VIAGEM
+// =============================================
+document.getElementById('tripForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const phone = document.getElementById('tripPhone').value.trim();
+    if (!phone) {
+        showToast('Insira o telefone do cliente.', true);
+        return;
+    }
+
+    try {
+        const customer = await getCustomer(phone);
+        if (!customer) {
+            showToast('Cliente não encontrado. Registe-o primeiro em "Gerir Clientes".', true);
+            return;
+        }
+
+        const newPoints = parseInt(customer.pontos || 0) + PONTOS.VIAGEM;
+        const newTrips = parseInt(customer.viagens || 0) + 1;
+
+        await sheetPost({
+            action: 'updatePoints',
+            telefone: phone,
+            pontos: newPoints,
+            viagens: newTrips,
+            indicacoes: customer.indicacoes || 0,
+            pesquisas: customer.pesquisas || 0
+        });
+
+        showToast(`✅ Viagem registada! ${customer.nome} ganhou ${PONTOS.VIAGEM} pontos. Total: ${newPoints} pts`);
+        this.reset();
+
+    } catch (err) {
+        console.error('Erro ao registar viagem:', err);
+        showToast('Erro ao registar viagem.', true);
+    }
+});
+
+// =============================================
+// ADMIN: REGISTAR INDICAÇÃO
+// =============================================
+document.getElementById('referralForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const giverPhone = document.getElementById('referralGiverPhone').value.trim();
+    const receiverName = document.getElementById('referralReceiverName').value.trim();
+    const receiverPhone = document.getElementById('referralReceiverPhone').value.trim();
+
+    if (!giverPhone || !receiverName || !receiverPhone) {
+        showToast('Preencha todos os campos.', true);
+        return;
+    }
+
+    try {
+        const giver = await getCustomer(giverPhone);
+        if (!giver) {
+            showToast('Cliente que indica não encontrado. Registe-o primeiro.', true);
+            return;
+        }
+
+        let receiver = await getCustomer(receiverPhone);
+        if (!receiver) {
+            await sheetPost({
+                action: 'addCustomer',
+                nome: receiverName,
+                telefone: receiverPhone,
+                pontos: PONTOS.AMIGO_INDICADO,
+                viagens: 0,
+                indicacoes: 0,
+                pesquisas: 0
+            });
+        } else {
+            await sheetPost({
+                action: 'updatePoints',
+                telefone: receiverPhone,
+                pontos: parseInt(receiver.pontos || 0) + PONTOS.AMIGO_INDICADO,
+                viagens: receiver.viagens || 0,
+                indicacoes: receiver.indicacoes || 0,
+                pesquisas: receiver.pesquisas || 0
+            });
+        }
+
+        await sheetPost({
+            action: 'updatePoints',
+            telefone: giverPhone,
+            pontos: parseInt(giver.pontos || 0) + PONTOS.INDICACAO,
+            viagens: giver.viagens || 0,
+            indicacoes: parseInt(giver.indicacoes || 0) + 1,
+            pesquisas: giver.pesquisas || 0
+        });
+
+        showToast(`✅ Indicação registada! ${giver.nome} e ${receiverName} ganharam ${PONTOS.INDICACAO} pontos cada!`);
+        this.reset();
+
+    } catch (err) {
+        console.error('Erro ao registar indicação:', err);
+        showToast('Erro ao registar indicação.', true);
+    }
+});
+
+// =============================================
+// ADMIN: GERIR CLIENTES
+// =============================================
+document.getElementById('customerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById('customerName').value.trim();
+    const phone = document.getElementById('customerPhone').value.trim();
+
+    if (!name || !phone) {
+        showToast('Preencha o nome e o telefone.', true);
+        return;
+    }
+
+    try {
+        const existing = await getCustomer(phone);
+
+        if (existing) {
+            showToast(`✅ Cliente "${name}" já existe com ${existing.pontos || 0} pontos!`);
+        } else {
+            await sheetPost({
+                action: 'addCustomer',
+                nome: name,
+                telefone: phone,
+                pontos: 0,
+                viagens: 0,
+                indicacoes: 0,
+                pesquisas: 0
+            });
+            showToast(`✅ Cliente "${name}" registado com sucesso!`);
+        }
+
+        this.reset();
+        loadCustomers();
+
+    } catch (err) {
+        console.error('Erro ao guardar cliente:', err);
+        showToast('Erro ao guardar cliente. Tente novamente.', true);
+    }
+});
+
+async function loadCustomers() {
+    const listEl = document.getElementById('customerList');
+    listEl.innerHTML = '<p style="color:#666;">A carregar...</p>';
+
+    try {
+        const result = await sheetGet({ action: 'getAllCustomers' });
+
+        if (!result.success || !result.clientes || result.clientes.length === 0) {
+            listEl.innerHTML = '<p style="color:#666;">Nenhum cliente registado ainda.</p>';
+            return;
+        }
+
+        listEl.innerHTML = result.clientes.map(c => `
+            <div class="customer-item">
+                <div class="customer-info">
+                    <h4>${c.nome || 'Sem nome'}</h4>
+                    <p>📞 ${c.telefone || ''} &nbsp;|&nbsp; 🚖 ${c.viagens || 0} viagens &nbsp;|&nbsp; 👥 ${c.indicacoes || 0} indicações</p>
+                </div>
+                <div class="customer-points">${c.pontos || 0} pts</div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error('Erro ao carregar clientes:', err);
+        listEl.innerHTML = '<p style="color:#dc3545;">Erro ao carregar clientes.</p>';
+    }
+}
+
+// =============================================
+// ADMIN: ENVIAR PESQUISA VIA WHATSAPP
+// =============================================
+document.getElementById('sendSurveyForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const phone = document.getElementById('sendSurveyPhone').value.trim();
+    if (!phone) {
+        showToast('Insira o número de telefone do cliente.', true);
+        return;
+    }
+
+    const surveyUrl = 'https://grutur.com/fidelizacao/#survey';
+    const msg = `🚖 *Grutur Táxi*\n\nObrigado pela sua viagem! 🙏\n\nPor favor, avalie o nosso serviço e ganhe *5 pontos bónus*:\n\n${surveyUrl}\n\nA sua opinião é muito importante para nós! ⭐`;
+
+    const waPhone = phone.replace(/[\s\-]/g, '').replace(/^\+/, '');
+    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    showToast('✅ WhatsApp aberto!');
+    this.reset();
 });
