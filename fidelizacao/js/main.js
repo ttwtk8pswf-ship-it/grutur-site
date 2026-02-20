@@ -197,7 +197,7 @@ async function updateCustomerPoints(phone, pointsToAdd, field) {
 document.getElementById('customerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById('customerName').value;
+    const name = document.getElementById('customerNameInput').value;
     const phone = document.getElementById('customerPhone').value;
 
     try {
