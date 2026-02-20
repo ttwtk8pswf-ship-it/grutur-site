@@ -16,19 +16,18 @@ const DISCOUNTS = [
     { points: 500, discount: 'FREE' }
 ];
 
-// Base URL para API
+// URL do Google Apps Script
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz61dhsq9NXu1SsTjbKZ7GoC-edUqbk6nLsGy9kU5GJsTG0bzR3QjWnwvKHymYbLNElg/exec';
-
 
 // Navegação entre seções
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const section = btn.dataset.section;
-        
+
         // Atualizar botões ativos
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
+
         // Mostrar seção correta
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(section).classList.add('active');
@@ -38,23 +37,23 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 // Sistema de Avaliação por Estrelas
 document.querySelectorAll('.stars').forEach(starContainer => {
     const stars = starContainer.querySelectorAll('i');
-    
+
     stars.forEach((star, index) => {
         star.addEventListener('click', () => {
             // Remover todas as estrelas ativas
             stars.forEach(s => s.classList.remove('active', 'fas'));
             stars.forEach(s => s.classList.add('far'));
-            
+
             // Ativar estrelas até o índice clicado
             for (let i = 0; i <= index; i++) {
                 stars[i].classList.remove('far');
                 stars[i].classList.add('fas', 'active');
             }
-            
+
             // Armazenar valor
             starContainer.dataset.value = index + 1;
         });
-        
+
         // Hover effect
         star.addEventListener('mouseenter', () => {
             stars.forEach((s, i) => {
@@ -68,7 +67,7 @@ document.querySelectorAll('.stars').forEach(starContainer => {
             });
         });
     });
-    
+
     starContainer.addEventListener('mouseleave', () => {
         const value = starContainer.dataset.value || 0;
         stars.forEach((s, i) => {
@@ -87,7 +86,7 @@ document.querySelectorAll('.stars').forEach(starContainer => {
 function calculateDiscount(points) {
     let currentDiscount = 0;
     let nextMilestone = DISCOUNTS[0];
-    
+
     for (let i = DISCOUNTS.length - 1; i >= 0; i--) {
         if (points >= DISCOUNTS[i].points) {
             currentDiscount = DISCOUNTS[i].discount;
@@ -97,7 +96,7 @@ function calculateDiscount(points) {
             nextMilestone = DISCOUNTS[i];
         }
     }
-    
+
     return { currentDiscount, nextMilestone };
 }
 
@@ -106,40 +105,42 @@ function formatPhone(phone) {
     return phone.replace(/\D/g, '');
 }
 
+// Funções Google Sheet
+async function sheetGet(params) {
+    const url = GOOGLE_SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url);
+    return await res.json();
+}
+
+async function sheetPost(data) {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    return await res.json();
+}
+
 // Adicionar/Atualizar Cliente
 async function upsertCustomer(name, phone) {
     const formattedPhone = formatPhone(phone);
-    
+
     try {
-        // Verificar se cliente existe
-        const response = await fetch(`${API_BASE}/customers/rows?phone=${formattedPhone}`);
-        const data = await response.json();
-        
-        if (data.rows && data.rows.length > 0) {
-            // Atualizar cliente existente
-            const customer = data.rows[0];
-            await fetch(`${API_BASE}/customers/rows/${customer.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            });
-            return customer.id;
+        const result = await sheetGet({ action: 'getCustomer', telefone: formattedPhone });
+
+        if (result.success && result.cliente) {
+            return result.cliente;
         } else {
-            // Criar novo cliente
-            const createResponse = await fetch(`${API_BASE}/customers/rows`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name,
-                    phone: formattedPhone,
-                    points: 0,
-                    trips: 0,
-                    referrals: 0,
-                    surveys: 0
-                })
+            await sheetPost({
+                action: 'addCustomer',
+                nome: name,
+                telefone: formattedPhone,
+                pontos: 0,
+                viagens: 0,
+                indicacoes: 0,
+                pesquisas: 0
             });
-            const newCustomer = await createResponse.json();
-            return newCustomer.id;
+            const newResult = await sheetGet({ action: 'getCustomer', telefone: formattedPhone });
+            return newResult.cliente;
         }
     } catch (error) {
         console.error('Erro ao processar cliente:', error);
@@ -150,13 +151,11 @@ async function upsertCustomer(name, phone) {
 // Buscar Cliente
 async function getCustomer(phone) {
     const formattedPhone = formatPhone(phone);
-    
+
     try {
-        const response = await fetch(`${API_BASE}/customers/rows?phone=${formattedPhone}`);
-        const data = await response.json();
-        
-        if (data.rows && data.rows.length > 0) {
-            return data.rows[0];
+        const result = await sheetGet({ action: 'getCustomer', telefone: formattedPhone });
+        if (result.success && result.cliente) {
+            return result.cliente;
         }
         return null;
     } catch (error) {
@@ -166,26 +165,27 @@ async function getCustomer(phone) {
 }
 
 // Atualizar Pontos do Cliente
-async function updateCustomerPoints(customerId, pointsToAdd, field) {
+async function updateCustomerPoints(phone, pointsToAdd, field) {
     try {
-        const response = await fetch(`${API_BASE}/customers/rows/${customerId}`);
-        const customer = await response.json();
-        
+        const result = await sheetGet({ action: 'getCustomer', telefone: formatPhone(phone) });
+        if (!result.success || !result.cliente) throw new Error('Cliente não encontrado');
+
+        const customer = result.cliente;
         const updates = {
-            points: customer.points + pointsToAdd
+            action: 'updatePoints',
+            telefone: formatPhone(phone),
+            pontos: parseInt(customer.pontos || 0) + pointsToAdd,
+            viagens: parseInt(customer.viagens || 0),
+            indicacoes: parseInt(customer.indicacoes || 0),
+            pesquisas: parseInt(customer.pesquisas || 0)
         };
-        
-        if (field) {
-            updates[field] = (customer[field] || 0) + 1;
-        }
-        
-        await fetch(`${API_BASE}/customers/rows/${customerId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
-        });
-        
-        return updates.points;
+
+        if (field === 'trips') updates.viagens += 1;
+        if (field === 'referrals') updates.indicacoes += 1;
+        if (field === 'surveys') updates.pesquisas += 1;
+
+        await sheetPost(updates);
+        return updates.pontos;
     } catch (error) {
         console.error('Erro ao atualizar pontos:', error);
         throw error;
@@ -195,10 +195,10 @@ async function updateCustomerPoints(customerId, pointsToAdd, field) {
 // Form: Adicionar Cliente
 document.getElementById('customerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const name = document.getElementById('customerName').value;
     const phone = document.getElementById('customerPhone').value;
-    
+
     try {
         await upsertCustomer(name, phone);
         alert('✅ Cliente salvo com sucesso!');
@@ -212,92 +212,63 @@ document.getElementById('customerForm').addEventListener('submit', async (e) => 
 // Form: Registrar Viagem
 document.getElementById('tripForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const phone = document.getElementById('tripPhone').value;
     const origin = document.getElementById('tripOrigin').value;
     const destination = document.getElementById('tripDestination').value;
     const value = document.getElementById('tripValue').value;
-    
+
     try {
         const customer = await getCustomer(phone);
-        
+
         if (!customer) {
             alert('❌ Cliente não encontrado. Por favor, cadastre o cliente primeiro.');
             return;
         }
-        
-        // Registrar viagem
-        await fetch(`${API_BASE}/trips/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_id: customer.id,
-                origin,
-                destination,
-                value: parseFloat(value) || 0,
-                date: new Date().toISOString()
-            })
-        });
-        
-        // Adicionar pontos
-        const newPoints = await updateCustomerPoints(customer.id, POINTS.TRIP, 'trips');
-        
-        alert(`✅ Viagem registrada!\n${customer.name} ganhou ${POINTS.TRIP} pontos.\nTotal: ${newPoints} pontos`);
+
+        const newPoints = await updateCustomerPoints(phone, POINTS.TRIP, 'trips');
+
+        alert(`✅ Viagem registada!\n${customer.nome} ganhou ${POINTS.TRIP} pontos.\nTotal: ${newPoints} pontos`);
         document.getElementById('tripForm').reset();
         loadCustomers();
     } catch (error) {
-        alert('❌ Erro ao registrar viagem. Tente novamente.');
+        alert('❌ Erro ao registar viagem. Tente novamente.');
     }
 });
 
 // Form: Registrar Indicação
 document.getElementById('referralForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const referrerPhone = document.getElementById('referrerPhone').value;
     const referredName = document.getElementById('referredName').value;
     const referredPhone = document.getElementById('referredPhone').value;
-    
+
     try {
         const referrer = await getCustomer(referrerPhone);
-        
+
         if (!referrer) {
             alert('❌ Cliente indicador não encontrado.');
             return;
         }
-        
-        // Criar ou buscar cliente indicado
+
         const referredId = await upsertCustomer(referredName, referredPhone);
-        
-        // Registrar indicação
-        await fetch(`${API_BASE}/referrals/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                referrer_id: referrer.id,
-                referred_id: referredId,
-                date: new Date().toISOString()
-            })
-        });
-        
-        // Adicionar pontos para quem indicou
-        const referrerPoints = await updateCustomerPoints(referrer.id, POINTS.REFERRAL_GIVER, 'referrals');
-        
-        // Adicionar pontos para quem foi indicado
-        const referredPoints = await updateCustomerPoints(referredId, POINTS.REFERRAL_RECEIVER);
-        
-        alert(`✅ Indicação registrada!\n\n${referrer.name} ganhou ${POINTS.REFERRAL_GIVER} pontos (Total: ${referrerPoints})\n${referredName} ganhou ${POINTS.REFERRAL_RECEIVER} pontos (Total: ${referredPoints})`);
+
+        const referrerPoints = await updateCustomerPoints(referrerPhone, POINTS.REFERRAL_GIVER, 'referrals');
+        const referredPoints = await updateCustomerPoints(referredPhone, POINTS.REFERRAL_RECEIVER);
+
+        alert(`✅ Indicação registada!\n${referrer.nome} ganhou ${POINTS.REFERRAL_GIVER} pontos (Total: ${referrerPoints})\n${referredName} ganhou ${POINTS.REFERRAL_RECEIVER} pontos (Total: ${referredPoints})`);
         document.getElementById('referralForm').reset();
         loadCustomers();
     } catch (error) {
-        alert('❌ Erro ao registrar indicação. Tente novamente.');
+        alert('❌ Erro ao registar indicação. Tente novamente.');
     }
 });
 
 // Form: Pesquisa de Satisfação
 document.getElementById('surveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const phone = document.getElementById('surveyPhone').value;
     const overall = document.querySelector('[data-rating="overall"]').dataset.value || 0;
     const driver = document.querySelector('[data-rating="driver"]').dataset.value || 0;
@@ -305,42 +276,25 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
     const punctuality = document.querySelector('[data-rating="punctuality"]').dataset.value || 0;
     const service = document.querySelector('[data-rating="service"]').dataset.value || 0;
     const comments = document.getElementById('surveyComments').value;
-    
+
     if (!overall || !driver || !vehicle || !punctuality || !service) {
         alert('❌ Por favor, avalie todos os itens com estrelas.');
         return;
     }
-    
+
     try {
         const customer = await getCustomer(phone);
-        
+
         if (!customer) {
             alert('❌ Cliente não encontrado. Verifique o telefone.');
             return;
         }
-        
-        // Registrar pesquisa
-        await fetch(`${API_BASE}/surveys/rows`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_id: customer.id,
-                overall_rating: parseInt(overall),
-                driver_rating: parseInt(driver),
-                vehicle_rating: parseInt(vehicle),
-                punctuality_rating: parseInt(punctuality),
-                service_rating: parseInt(service),
-                comments,
-                date: new Date().toISOString()
-            })
-        });
-        
-        // Adicionar pontos
-        const newPoints = await updateCustomerPoints(customer.id, POINTS.SURVEY, 'surveys');
-        
-        alert(`✅ Pesquisa enviada com sucesso!\n${customer.name} ganhou ${POINTS.SURVEY} pontos de bônus.\nTotal: ${newPoints} pontos`);
+
+        const newPoints = await updateCustomerPoints(phone, POINTS.SURVEY, 'surveys');
+
+        alert(`✅ Pesquisa enviada com sucesso!\n${customer.nome} ganhou ${POINTS.SURVEY} pontos de bónus.\nTotal: ${newPoints} pontos`);
         document.getElementById('surveyForm').reset();
-        
+
         // Resetar estrelas
         document.querySelectorAll('.stars').forEach(container => {
             container.dataset.value = 0;
@@ -357,27 +311,25 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
 // Form: Consultar Pontos
 document.getElementById('pointsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const phone = document.getElementById('pointsPhone').value;
-    
+
     try {
         const customer = await getCustomer(phone);
-        
+
         if (!customer) {
             alert('❌ Cliente não encontrado. Verifique o telefone.');
             return;
         }
-        
-        // Calcular desconto
-        const { currentDiscount, nextMilestone } = calculateDiscount(customer.points);
-        
-        // Mostrar resultados
-        document.getElementById('customerName').textContent = customer.name;
-        document.getElementById('totalPoints').textContent = customer.points;
-        document.getElementById('tripCount').textContent = customer.trips || 0;
-        document.getElementById('referralCount').textContent = customer.referrals || 0;
-        document.getElementById('surveyCount').textContent = customer.surveys || 0;
-        
+
+        const { currentDiscount, nextMilestone } = calculateDiscount(customer.pontos);
+
+        document.getElementById('customerName').textContent = customer.nome;
+        document.getElementById('totalPoints').textContent = customer.pontos;
+        document.getElementById('tripCount').textContent = customer.viagens || 0;
+        document.getElementById('referralCount').textContent = customer.indicacoes || 0;
+        document.getElementById('surveyCount').textContent = customer.pesquisas || 0;
+
         const discountBadge = document.getElementById('currentDiscount');
         if (currentDiscount === 'FREE') {
             discountBadge.textContent = '🎉 VIAGEM GRÁTIS!';
@@ -385,43 +337,42 @@ document.getElementById('pointsForm').addEventListener('submit', async (e) => {
         } else if (currentDiscount > 0) {
             discountBadge.textContent = `${currentDiscount}%`;
             if (nextMilestone) {
-                const pointsNeeded = nextMilestone.points - customer.points;
-                document.getElementById('discountMessage').textContent = 
+                const pointsNeeded = nextMilestone.points - customer.pontos;
+                document.getElementById('discountMessage').textContent =
                     `Faltam ${pointsNeeded} pontos para ${nextMilestone.discount === 'FREE' ? 'viagem grátis' : nextMilestone.discount + '% de desconto'}!`;
             } else {
                 document.getElementById('discountMessage').textContent = 'Você alcançou o desconto máximo!';
             }
         } else {
             discountBadge.textContent = '0%';
-            document.getElementById('discountMessage').textContent = 
-                `Faltam ${nextMilestone.points - customer.points} pontos para ${nextMilestone.discount}% de desconto!`;
+            document.getElementById('discountMessage').textContent =
+                `Faltam ${nextMilestone.points - customer.pontos} pontos para ${nextMilestone.discount}% de desconto!`;
         }
-        
-        // Barra de progresso
+
         if (nextMilestone) {
-            const progress = (customer.points / nextMilestone.points) * 100;
+            const progress = (customer.pontos / nextMilestone.points) * 100;
             document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
-            document.getElementById('progressText').textContent = 
-                `${customer.points} / ${nextMilestone.points} pontos`;
+            document.getElementById('progressText').textContent =
+                `${customer.pontos} / ${nextMilestone.points} pontos`;
         } else {
             document.getElementById('progressBar').style.width = '100%';
             document.getElementById('progressText').textContent = 'Nível máximo alcançado!';
         }
-        
+
         document.getElementById('pointsResult').style.display = 'block';
-        
+
         // Configurar botão WhatsApp
         document.getElementById('shareWhatsapp').onclick = () => {
-            const message = `🎁 Meus Pontos Grutur 🚖\n\n` +
-                `Total: ${customer.points} pontos\n` +
-                `Desconto atual: ${currentDiscount === 'FREE' ? 'Viagem Grátis!' : currentDiscount + '%'}\n` +
-                `Viagens: ${customer.trips || 0}\n` +
-                `Indicações: ${customer.referrals || 0}\n\n` +
+            const message = `🚖 Meus Pontos Grutur 🚖\n\n` +
+                `Total: ${customer.pontos} pontos\n` +
+                `Desconto atual: ${currentDiscount === 'FREE' ? 'Viagem Grátis' : currentDiscount + '%'}\n` +
+                `Viagens: ${customer.viagens || 0}\n` +
+                `Indicações: ${customer.indicacoes || 0}\n\n` +
                 `Participe você também!`;
-            
+
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         };
-        
+
     } catch (error) {
         alert('❌ Erro ao consultar pontos. Tente novamente.');
     }
@@ -430,49 +381,47 @@ document.getElementById('pointsForm').addEventListener('submit', async (e) => {
 // Form: Enviar Pesquisa via WhatsApp
 document.getElementById('sendSurveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const phone = document.getElementById('sendSurveyPhone').value;
     const formattedPhone = formatPhone(phone);
-    
+
     const surveyUrl = window.location.origin + window.location.pathname + '#survey';
-    const message = `🌟 Grutur - Pesquisa de Satisfação\n\n` +
+    const message = `🚖 Grutur - Pesquisa de Satisfação\n\n` +
         `Olá! Agradecemos por utilizar nossos serviços.\n\n` +
         `Sua opinião é muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n` +
         `${surveyUrl}\n\n` +
         `Obrigado! 🚖`;
-    
+
     window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
 });
 
 // Carregar Lista de Clientes
 async function loadCustomers() {
     try {
-        const response = await fetch(`${API_BASE}/customers/rows`);
-        const data = await response.json();
-        
+        const result = await sheetGet({ action: 'getAllCustomers' });
         const container = document.getElementById('customersList');
-        
-        if (!data.rows || data.rows.length === 0) {
+
+        if (!result.success || !result.clientes || result.clientes.length === 0) {
             container.innerHTML = '<p>Nenhum cliente cadastrado ainda.</p>';
             return;
         }
-        
-        container.innerHTML = data.rows
-            .sort((a, b) => b.points - a.points)
+
+        container.innerHTML = result.clientes
+            .sort((a, b) => b.pontos - a.pontos)
             .map(customer => `
                 <div class="customer-item">
                     <div class="customer-info">
-                        <h4>${customer.name}</h4>
-                        <p>📱 ${customer.phone} | 🚖 ${customer.trips || 0} viagens | 👥 ${customer.referrals || 0} indicações</p>
+                        <h4>${customer.nome}</h4>
+                        <p>📞 ${customer.telefone} | 🚖 ${customer.viagens || 0} viagens | 👥 ${customer.indicacoes || 0} indicações</p>
                     </div>
                     <div class="customer-points">
-                        ${customer.points} pontos
+                        ${customer.pontos} pontos
                     </div>
                 </div>
             `).join('');
     } catch (error) {
         console.error('Erro ao carregar clientes:', error);
-        document.getElementById('customersList').innerHTML = 
+        document.getElementById('customersList').innerHTML =
             '<p style="color: red;">Erro ao carregar clientes. Tente recarregar a página.</p>';
     }
 }
