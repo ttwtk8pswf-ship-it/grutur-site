@@ -17,7 +17,8 @@ const DISCOUNTS = [
 ];
 
 // URL do Google Apps Script
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz61dhsq9NXu1SsTjbKZ7GoC-edUqbk6nLsGy9kU5GJsTG0bzR3QjWnwvKHymYbLNElg/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBWCKVhOATg_FRyuI9AM9f26A_L1bwpsHR4tM_mRkhBri_HXjC4I0n4uesBvC2RIIORA/exec';
+
 
 // Navegação entre seções
 document.querySelectorAll('.nav-btn').forEach(btn => {
