@@ -292,6 +292,18 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
         }
 
         const newPoints = await updateCustomerPoints(phone, POINTS.SURVEY, 'surveys');
+                await sheetPost({
+            action: 'addAvaliacao',
+            telefone: phone,
+            nome: customer.nome,
+            geral: overall,
+            motorista: driver,
+            veiculo: vehicle,
+            pontualidade: punctuality,
+            atendimento: service,
+            comentarios: comments
+        });
+
 
         alert(`✅ Pesquisa enviada com sucesso!\n${customer.nome} ganhou ${POINTS.SURVEY} pontos de bónus.\nTotal: ${newPoints} pontos`);
         document.getElementById('surveyForm').reset();
