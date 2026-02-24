@@ -107,6 +107,30 @@ async function sheetPost(data) {
     });
     return await res.json();
 }
+
+// Validar link ao carregar a página
+async function validarLinkPesquisa() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codigo = urlParams.get('codigo');
+    if (!codigo) return;
+
+    try {
+        const result = await sheetGet({ action: 'validarLink', codigo: codigo });
+        if (result.success) {
+            // Link válido - preencher telefone e mostrar secção pesquisa
+            const btn = document.querySelector('[data-section="survey"]');
+            if (btn) btn.click();
+            document.getElementById('surveyPhone').value = result.telefone;
+            document.getElementById('surveyPhone').readOnly = true;
+            // Guardar código na página para usar no submit
+            document.getElementById('surveyForm').dataset.codigo = codigo;
+        } else {
+            alert('❌ ' + result.message);
+        }
+    } catch (error) {
+        console.error('Erro ao validar link:', error);
+    }
+}
 // Adicionar/Atualizar Cliente
 async function upsertCustomer(name, phone) {
     const formattedPhone = formatPhone(phone);
@@ -236,6 +260,7 @@ document.getElementById('referralForm').addEventListener('submit', async (e) => 
 document.getElementById('surveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const phone = document.getElementById('surveyPhone').value;
+    const codigo = document.getElementById('surveyForm').dataset.codigo || null;
     const overall = document.querySelector('[data-rating="overall"]').dataset.value || 0;
     const driver = document.querySelector('[data-rating="driver"]').dataset.value || 0;
     const vehicle = document.querySelector('[data-rating="vehicle"]').dataset.value || 0;
@@ -255,12 +280,13 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             return;
         }
 
-        const lastSurveyKey = 'lastSurvey_' + formatPhone(phone);
-        const lastSurvey = localStorage.getItem(lastSurveyKey);
-        const now = new Date().getTime();
-        if (lastSurvey && (now - parseInt(lastSurvey)) < 24 * 60 * 60 * 1000) {
-            alert('❌ Este cliente já fez uma avaliação nas últimas 24 horas.');
-            return;
+        // Se veio por link, validar novamente antes de submeter
+        if (codigo) {
+            const validacao = await sheetGet({ action: 'validarLink', codigo: codigo });
+            if (!validacao.success) {
+                alert('❌ ' + validacao.message);
+                return;
+            }
         }
 
         const newPoints = await updateCustomerPoints(phone, POINTS.SURVEY, 'surveys');
@@ -276,9 +302,15 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             comentarios: comments
         });
 
-        localStorage.setItem(lastSurveyKey, now.toString());
+        // Marcar link como usado
+        if (codigo) {
+            await sheetPost({ action: 'marcarLinkUsado', codigo: codigo });
+        }
+
         alert('✅ Pesquisa enviada com sucesso!\n' + customer.nome + ' ganhou ' + POINTS.SURVEY + ' pontos de bonus.\nTotal: ' + newPoints + ' pontos');
         document.getElementById('surveyForm').reset();
+        document.getElementById('surveyPhone').readOnly = false;
+        delete document.getElementById('surveyForm').dataset.codigo;
 
         document.querySelectorAll('.stars').forEach(container => {
             container.dataset.value = 0;
@@ -359,13 +391,28 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
     e.preventDefault();
     const phone = document.getElementById('sendSurveyPhone').value;
     const formattedPhone = formatPhone(phone);
-    const surveyUrl = window.location.origin + window.location.pathname + '#survey';
-    const message = '🚌 Grutur - Pesquisa de Satisfacao\n\n' +
-        'Ola! Agradecemos por utilizar nossos servicos.\n\n' +
-        'Sua opiniao e muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n' +
-        surveyUrl + '\n\n' +
-        'Obrigado! 🚌';
-    window.open('https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message), '_blank');
+
+    try {
+        // Gerar link único
+        const result = await sheetPost({ action: 'gerarLink', telefone: formattedPhone });
+        if (!result.success) {
+            alert('❌ Erro ao gerar link. Tente novamente.');
+            return;
+        }
+
+        const codigo = result.codigo;
+        const surveyUrl = window.location.origin + window.location.pathname + '?codigo=' + codigo + '#survey';
+        const message = '🚌 Grutur - Pesquisa de Satisfacao\n\n' +
+            'Ola! Agradecemos por utilizar nossos servicos.\n\n' +
+            'Sua opiniao e muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n' +
+            surveyUrl + '\n\n' +
+            'Este link e valido por 48 horas e pode ser usado apenas uma vez.\n\n' +
+            'Obrigado! 🚌';
+        window.open('https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message), '_blank');
+        document.getElementById('sendSurveyForm').reset();
+    } catch (error) {
+        alert('❌ Erro ao enviar pesquisa. Tente novamente.');
+    }
 });
 
 // Carregar Lista de Clientes
@@ -431,11 +478,5 @@ document.querySelector('[data-section="admin"]').addEventListener('click', () =>
 
 // Inicializacao
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash) {
-        const section = window.location.hash.substring(1);
-        const btn = document.querySelector('[data-section="' + section + '"]');
-        if (btn) {
-            btn.click();
-        }
-    }
+    validarLinkPesquisa();
 });
