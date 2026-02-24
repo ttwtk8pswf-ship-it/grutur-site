@@ -117,12 +117,10 @@ async function validarLinkPesquisa() {
     try {
         const result = await sheetGet({ action: 'validarLink', codigo: codigo });
         if (result.success) {
-            // Link válido - preencher telefone e mostrar secção pesquisa
             const btn = document.querySelector('[data-section="survey"]');
             if (btn) btn.click();
             document.getElementById('surveyPhone').value = result.telefone;
             document.getElementById('surveyPhone').readOnly = true;
-            // Guardar código na página para usar no submit
             document.getElementById('surveyForm').dataset.codigo = codigo;
         } else {
             alert('❌ ' + result.message);
@@ -280,7 +278,6 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             return;
         }
 
-        // Se veio por link, validar novamente antes de submeter
         if (codigo) {
             const validacao = await sheetGet({ action: 'validarLink', codigo: codigo });
             if (!validacao.success) {
@@ -302,7 +299,6 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             comentarios: comments
         });
 
-        // Marcar link como usado
         if (codigo) {
             await sheetPost({ action: 'marcarLinkUsado', codigo: codigo });
         }
@@ -393,24 +389,27 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
     const formattedPhone = formatPhone(phone);
 
     try {
-        // Gerar link único
         const result = await sheetPost({ action: 'gerarLink', telefone: formattedPhone });
-        if (!result.success) {
+        if (!result || !result.success) {
             alert('❌ Erro ao gerar link. Tente novamente.');
             return;
         }
 
         const codigo = result.codigo;
-        const surveyUrl = window.location.origin + window.location.pathname + '?codigo=' + codigo + '#survey';
+        const surveyUrl = window.location.origin + window.location.pathname + '?codigo=' + codigo;
         const message = '🚌 Grutur - Pesquisa de Satisfacao\n\n' +
             'Ola! Agradecemos por utilizar nossos servicos.\n\n' +
-            'Sua opiniao e muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n' +
+            'Responda nossa pesquisa e ganhe 5 pontos extras:\n\n' +
             surveyUrl + '\n\n' +
             'Este link e valido por 48 horas e pode ser usado apenas uma vez.\n\n' +
             'Obrigado! 🚌';
-        window.open('https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message), '_blank');
+
+        const whatsappUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message);
+        window.open(whatsappUrl, '_blank');
+        alert('✅ Link enviado com sucesso!');
         document.getElementById('sendSurveyForm').reset();
     } catch (error) {
+        console.error('Erro:', error);
         alert('❌ Erro ao enviar pesquisa. Tente novamente.');
     }
 });
