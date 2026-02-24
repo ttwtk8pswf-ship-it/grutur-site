@@ -388,9 +388,12 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
     const phone = document.getElementById('sendSurveyPhone').value;
     const formattedPhone = formatPhone(phone);
 
+    const win = window.open('', '_blank');
+
     try {
         const result = await sheetPost({ action: 'gerarLink', telefone: formattedPhone });
         if (!result || !result.success) {
+            win.close();
             alert('❌ Erro ao gerar link. Tente novamente.');
             return;
         }
@@ -404,11 +407,11 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
             'Este link e valido por 48 horas e pode ser usado apenas uma vez.\n\n' +
             'Obrigado! 🚌';
 
-        const whatsappUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message);
-        window.open(whatsappUrl, '_blank');
+        win.location.href = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message);
         alert('✅ Link enviado com sucesso!');
-        document.getElementById('sendSurveyForm').reset();
+        document.getElementById('sendSurveyPhone').value = '';
     } catch (error) {
+        win.close();
         console.error('Erro:', error);
         alert('❌ Erro ao enviar pesquisa. Tente novamente.');
     }
