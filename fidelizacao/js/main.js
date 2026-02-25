@@ -288,7 +288,15 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
         }
 
         alert(`✅ Pesquisa enviada com sucesso!\n${customer.nome} ganhou ${POINTS.SURVEY} pontos de bónus.\nTotal: ${newPoints} pontos`);
-        document.getElementById('surveyForm').reset();
+
+        // Bloquear formulário para não permitir nova avaliação
+        document.getElementById('surveyForm').style.display = 'none';
+
+        // Mostrar mensagem de agradecimento
+        const thanksMsg = document.createElement('div');
+        thanksMsg.style.cssText = 'text-align:center; padding:40px 20px; font-size:1.2em; color:#667eea;';
+        thanksMsg.innerHTML = '🎉 <strong>Obrigado pela sua avaliação!</strong><br><br>Já pode fechar esta página.';
+        document.getElementById('surveyForm').parentNode.appendChild(thanksMsg);
 
         // Resetar estrelas
         document.querySelectorAll('.stars').forEach(container => {
@@ -372,7 +380,7 @@ document.getElementById('pointsForm').addEventListener('submit', async (e) => {
     }
 });
 // Form: Enviar Pesquisa via WhatsApp
-document.getElementById('sendSurveyForm').addEventListener('submit', async (e) => {
+document.getElementById('sendSurveyForm').addEventListener('submit', (e) => {
     e.preventDefault();
 
     const phone = document.getElementById('sendSurveyPhone').value;
