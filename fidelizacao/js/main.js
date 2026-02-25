@@ -335,6 +335,7 @@ document.getElementById('pointsForm').addEventListener('submit', async (e) => {
         document.getElementById('customerName').textContent = customer.nome;
         document.getElementById('totalPoints').textContent = customer.pontos;
         document.getElementById('tripCount').textContent = customer.viagens || 0;
+        document.getElementById('referralCount').textContent = customer.viagens || 0;
         document.getElementById('referralCount').textContent = customer.indicacoes || 0;
         document.getElementById('surveyCount').textContent = customer.pesquisas || 0;
 
@@ -388,12 +389,9 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
     const phone = document.getElementById('sendSurveyPhone').value;
     const formattedPhone = formatPhone(phone);
 
-    const win = window.open('', '_blank');
-
     try {
         const result = await sheetPost({ action: 'gerarLink', telefone: formattedPhone });
         if (!result || !result.success) {
-            win.close();
             alert('❌ Erro ao gerar link. Tente novamente.');
             return;
         }
@@ -407,11 +405,9 @@ document.getElementById('sendSurveyForm').addEventListener('submit', async (e) =
             'Este link e valido por 48 horas e pode ser usado apenas uma vez.\n\n' +
             'Obrigado! 🚌';
 
-        win.location.href = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message);
-        alert('✅ Link enviado com sucesso!');
+        window.open('https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message), '_blank');
         document.getElementById('sendSurveyPhone').value = '';
     } catch (error) {
-        win.close();
         console.error('Erro:', error);
         alert('❌ Erro ao enviar pesquisa. Tente novamente.');
     }
