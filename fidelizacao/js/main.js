@@ -33,7 +33,6 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 // Sistema de Avaliação por Estrelas
 document.querySelectorAll('.stars').forEach(starContainer => {
     const stars = starContainer.querySelectorAll('i');
-
     stars.forEach((star, index) => {
         star.addEventListener('click', () => {
             stars.forEach(s => s.classList.remove('active', 'fas'));
@@ -44,7 +43,6 @@ document.querySelectorAll('.stars').forEach(starContainer => {
             }
             starContainer.dataset.value = index + 1;
         });
-
         star.addEventListener('mouseenter', () => {
             stars.forEach((s, i) => {
                 if (i <= index) {
@@ -57,7 +55,6 @@ document.querySelectorAll('.stars').forEach(starContainer => {
             });
         });
     });
-
     starContainer.addEventListener('mouseleave', () => {
         const value = starContainer.dataset.value || 0;
         stars.forEach((s, i) => {
@@ -106,28 +103,6 @@ async function sheetPost(data) {
         body: JSON.stringify(data)
     });
     return await res.json();
-}
-
-// Validar link ao carregar a página
-async function validarLinkPesquisa() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const codigo = urlParams.get('codigo');
-    if (!codigo) return;
-
-    try {
-        const result = await sheetGet({ action: 'validarLink', codigo: codigo });
-        if (result.success) {
-            const btn = document.querySelector('[data-section="survey"]');
-            if (btn) btn.click();
-            document.getElementById('surveyPhone').value = result.telefone;
-            document.getElementById('surveyPhone').readOnly = true;
-            document.getElementById('surveyForm').dataset.codigo = codigo;
-        } else {
-            alert('❌ ' + result.message);
-        }
-    } catch (error) {
-        console.error('Erro ao validar link:', error);
-    }
 }
 // Adicionar/Atualizar Cliente
 async function upsertCustomer(name, phone) {
@@ -180,8 +155,8 @@ async function updateCustomerPoints(phone, pointsToAdd, field) {
             action: 'updatePoints',
             telefone: formatPhone(phone),
             pontos: parseInt(customer.pontos || 0) + pointsToAdd,
-            viagens: customer.viagens || 0,
-            indicacoes: customer.indicacoes || 0,
+            viagens: parseInt(customer.viagens || 0),
+            indicacoes: parseInt(customer.indicacoes || 0),
             pesquisas: parseInt(customer.pesquisas || 0)
         };
         if (field === 'trips') updates.viagens += 1;
@@ -224,7 +199,7 @@ document.getElementById('tripForm').addEventListener('submit', async (e) => {
             return;
         }
         const newPoints = await updateCustomerPoints(phone, POINTS.TRIP, 'trips');
-        alert('✅ Viagem registada!\n' + customer.nome + ' ganhou ' + POINTS.TRIP + ' pontos.\nTotal: ' + newPoints + ' pontos');
+        alert(`✅ Viagem registada!\n${customer.nome} ganhou ${POINTS.TRIP} pontos.\nTotal: ${newPoints} pontos`);
         document.getElementById('tripForm').reset();
         loadCustomers();
     } catch (error) {
@@ -247,7 +222,7 @@ document.getElementById('referralForm').addEventListener('submit', async (e) => 
         const referredId = await upsertCustomer(referredName, referredPhone);
         const referrerPoints = await updateCustomerPoints(referrerPhone, POINTS.REFERRAL_GIVER, 'referrals');
         const referredPoints = await updateCustomerPoints(referredPhone, POINTS.REFERRAL_RECEIVER);
-        alert('✅ Indicação registada!\n' + referrer.nome + ' ganhou ' + POINTS.REFERRAL_GIVER + ' pontos (Total: ' + referrerPoints + ')\n' + referredName + ' ganhou ' + POINTS.REFERRAL_RECEIVER + ' pontos (Total: ' + referredPoints + ')');
+        alert(`✅ Indicação registada!\n${referrer.nome} ganhou ${POINTS.REFERRAL_GIVER} pontos (Total: ${referrerPoints})\n${referredName} ganhou ${POINTS.REFERRAL_RECEIVER} pontos (Total: ${referredPoints})`);
         document.getElementById('referralForm').reset();
         loadCustomers();
     } catch (error) {
@@ -257,8 +232,8 @@ document.getElementById('referralForm').addEventListener('submit', async (e) => 
 // Form: Pesquisa de Satisfação
 document.getElementById('surveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const phone = document.getElementById('surveyPhone').value;
-    const codigo = document.getElementById('surveyForm').dataset.codigo || null;
     const overall = document.querySelector('[data-rating="overall"]').dataset.value || 0;
     const driver = document.querySelector('[data-rating="driver"]').dataset.value || 0;
     const vehicle = document.querySelector('[data-rating="vehicle"]').dataset.value || 0;
@@ -271,22 +246,30 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
         return;
     }
 
+    // Verificar código único na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const codigo = urlParams.get('codigo') || document.getElementById('surveyForm').dataset.codigo || null;
+
     try {
         const customer = await getCustomer(phone);
+
         if (!customer) {
             alert('❌ Cliente não encontrado. Verifique o telefone.');
             return;
         }
 
+        // Se veio por link único, validar se já foi usado
         if (codigo) {
-            const validacao = await sheetGet({ action: 'validarLink', codigo: codigo });
-            if (!validacao.success) {
-                alert('❌ ' + validacao.message);
+            const val = await sheetGet({ action: 'validarLink', codigo: codigo });
+            if (!val.success) {
+                alert('❌ ' + (val.message || 'Este link já foi utilizado ou expirou.'));
                 return;
             }
         }
 
         const newPoints = await updateCustomerPoints(phone, POINTS.SURVEY, 'surveys');
+
+        // Registar avaliação no Google Sheet
         await sheetPost({
             action: 'addAvaliacao',
             telefone: phone,
@@ -299,15 +282,15 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             comentarios: comments
         });
 
+        // Marcar link como usado (se veio por link único)
         if (codigo) {
             await sheetPost({ action: 'marcarLinkUsado', codigo: codigo });
         }
 
-        alert('✅ Pesquisa enviada com sucesso!\n' + customer.nome + ' ganhou ' + POINTS.SURVEY + ' pontos de bonus.\nTotal: ' + newPoints + ' pontos');
+        alert(`✅ Pesquisa enviada com sucesso!\n${customer.nome} ganhou ${POINTS.SURVEY} pontos de bónus.\nTotal: ${newPoints} pontos`);
         document.getElementById('surveyForm').reset();
-        document.getElementById('surveyPhone').readOnly = false;
-        delete document.getElementById('surveyForm').dataset.codigo;
 
+        // Resetar estrelas
         document.querySelectorAll('.stars').forEach(container => {
             container.dataset.value = 0;
             container.querySelectorAll('i').forEach(star => {
@@ -315,6 +298,7 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
                 star.classList.add('far');
             });
         });
+
     } catch (error) {
         alert('❌ Erro ao enviar pesquisa. Tente novamente.');
     }
@@ -323,60 +307,64 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
 // Form: Consultar Pontos
 document.getElementById('pointsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const phone = document.getElementById('pointsPhone').value;
+
     try {
         const customer = await getCustomer(phone);
+
         if (!customer) {
             alert('❌ Cliente não encontrado. Verifique o telefone.');
             return;
         }
 
         const { currentDiscount, nextMilestone } = calculateDiscount(customer.pontos);
+
         document.getElementById('customerName').textContent = customer.nome;
         document.getElementById('totalPoints').textContent = customer.pontos;
         document.getElementById('tripCount').textContent = customer.viagens || 0;
-        document.getElementById('referralCount').textContent = customer.viagens || 0;
         document.getElementById('referralCount').textContent = customer.indicacoes || 0;
         document.getElementById('surveyCount').textContent = customer.pesquisas || 0;
 
         const discountBadge = document.getElementById('currentDiscount');
         if (currentDiscount === 'FREE') {
-            discountBadge.textContent = '🎉 VIAGEM GRATIS!';
-            document.getElementById('discountMessage').textContent = 'Parabens! Voce conquistou uma viagem gratis!';
+            discountBadge.textContent = '🎉 VIAGEM GRÁTIS!';
+            document.getElementById('discountMessage').textContent = 'Parabéns! Você conquistou uma viagem grátis!';
         } else if (currentDiscount > 0) {
-            discountBadge.textContent = currentDiscount + '%';
+            discountBadge.textContent = `${currentDiscount}%`;
             if (nextMilestone) {
                 const pointsNeeded = nextMilestone.points - customer.pontos;
                 document.getElementById('discountMessage').textContent =
-                    'Faltam ' + pointsNeeded + ' pontos para ' + (nextMilestone.discount === 'FREE' ? 'viagem gratis' : nextMilestone.discount + '% de desconto') + '!';
+                    `Faltam ${pointsNeeded} pontos para ${nextMilestone.discount === 'FREE' ? 'viagem grátis' : nextMilestone.discount + '% de desconto'}!`;
             } else {
-                document.getElementById('discountMessage').textContent = 'Voce alcancou o desconto maximo!';
+                document.getElementById('discountMessage').textContent = 'Você alcançou o desconto máximo!';
             }
         } else {
             discountBadge.textContent = '0%';
             document.getElementById('discountMessage').textContent =
-                'Faltam ' + (nextMilestone.points - customer.pontos) + ' pontos para ' + nextMilestone.discount + '% de desconto';
+                `Faltam ${nextMilestone.points - customer.pontos} pontos para ${nextMilestone.discount}% de desconto`;
         }
 
         if (nextMilestone) {
             const progress = (customer.pontos / nextMilestone.points) * 100;
-            document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
-            document.getElementById('progressText').textContent = customer.pontos + ' / ' + nextMilestone.points + ' pontos';
+            document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
+            document.getElementById('progressText').textContent = `${customer.pontos} / ${nextMilestone.points} pontos`;
         } else {
             document.getElementById('progressBar').style.width = '100%';
-            document.getElementById('progressText').textContent = 'Nivel maximo alcancado!';
+            document.getElementById('progressText').textContent = 'Nível máximo alcançado!';
         }
 
         document.getElementById('pointsResult').style.display = 'block';
 
+        // Configurar botão WhatsApp
         document.getElementById('shareWhatsapp').onclick = () => {
-            const message = '🚌 Meus Pontos Grutur 🚌\n\n' +
-                'Total: ' + customer.pontos + ' pontos\n' +
-                'Desconto atual: ' + (currentDiscount === 'FREE' ? 'Viagem Gratis' : currentDiscount + '%') + '\n' +
-                'Viagens: ' + (customer.viagens || 0) + '\n' +
-                'Indicacoes: ' + (customer.indicacoes || 0) + '\n' +
-                'Participe voce tambem!';
-            window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+            const message = `🚌 Meus Pontos Grutur 🚌\n\n` +
+                `Total: ${customer.pontos} pontos\n` +
+                `Desconto atual: ${currentDiscount === 'FREE' ? 'Viagem Grátis' : currentDiscount + '%'}\n` +
+                `Viagens: ${customer.viagens || 0}\n` +
+                `Indicações: ${customer.indicacoes || 0}\n` +
+                `Participe você também!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         };
 
     } catch (error) {
@@ -386,31 +374,20 @@ document.getElementById('pointsForm').addEventListener('submit', async (e) => {
 // Form: Enviar Pesquisa via WhatsApp
 document.getElementById('sendSurveyForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const phone = document.getElementById('sendSurveyPhone').value;
     const formattedPhone = formatPhone(phone);
 
-    try {
-        const result = await sheetPost({ action: 'gerarLink', telefone: formattedPhone });
-        if (!result || !result.success) {
-            alert('❌ Erro ao gerar link. Tente novamente.');
-            return;
-        }
+    const surveyUrl = window.location.origin + window.location.pathname + '#survey';
+    const message = `🚌 Grutur - Pesquisa de Satisfação\n\n` +
+        `Olá! Agradecemos por utilizar nossos serviços.\n\n` +
+        `Sua opinião é muito importante! Responda nossa pesquisa e ganhe 5 pontos extras:\n\n` +
+        `${surveyUrl}\n\n` +
+        `Obrigado! 🚌`;
 
-        const codigo = result.codigo;
-        const surveyUrl = window.location.origin + window.location.pathname + '?codigo=' + codigo;
-        const message = '🚌 Grutur - Pesquisa de Satisfacao\n\n' +
-            'Ola! Agradecemos por utilizar nossos servicos.\n\n' +
-            'Responda nossa pesquisa e ganhe 5 pontos extras:\n\n' +
-            surveyUrl + '\n\n' +
-            'Este link e valido por 48 horas e pode ser usado apenas uma vez.\n\n' +
-            'Obrigado! 🚌';
-
-        window.open('https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message), '_blank');
-        document.getElementById('sendSurveyPhone').value = '';
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('❌ Erro ao enviar pesquisa. Tente novamente.');
-    }
+    window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    alert('✅ Link de pesquisa enviado com sucesso!');
+    document.getElementById('sendSurveyPhone').value = '';
 });
 
 // Carregar Lista de Clientes
@@ -418,63 +395,75 @@ async function loadCustomers() {
     try {
         const result = await sheetGet({ action: 'getAllCustomers' });
         const container = document.getElementById('customersList');
+
         if (!result.success || !result.clientes || result.clientes.length === 0) {
             container.innerHTML = '<p>Nenhum cliente cadastrado ainda.</p>';
             return;
         }
+
         container.innerHTML = result.clientes
             .sort((a, b) => b.pontos - a.pontos)
-            .map(customer =>
-                '<div class="customer-item">' +
-                '<div class="customer-info">' +
-                '<h4>' + customer.nome + '</h4>' +
-                '<p>📞 ' + customer.telefone + ' | 🚌 ' + (customer.viagens || 0) + ' viagens | 👥 ' + (customer.indicacoes || 0) + ' indicacoes</p>' +
-                '</div>' +
-                '<div class="customer-points">' + customer.pontos + ' pontos</div>' +
-                '</div>'
-            ).join('');
+            .map(customer => `
+                <div class="customer-item">
+                    <div class="customer-info">
+                        <h4>${customer.nome}</h4>
+                        <p>📞 ${customer.telefone} | 🚌 ${customer.viagens || 0} viagens | 👥 ${customer.indicacoes || 0} indicações</p>
+                    </div>
+                    <div class="customer-points">
+                        ${customer.pontos} pontos
+                    </div>
+                </div>
+            `).join('');
     } catch (error) {
         console.error('Erro ao carregar clientes:', error);
         document.getElementById('customersList').innerHTML =
-            '<p style="color: red;">Erro ao carregar clientes. Tente recarregar a pagina.</p>';
+            '<p style="color: red;">Erro ao carregar clientes. Tente recarregar a página.</p>';
     }
 }
 
-// Carregar Avaliacoes
+// Carregar Avaliações
 async function loadAvaliacoes() {
     try {
         const result = await sheetGet({ action: 'getAllAvaliacoes' });
         const container = document.getElementById('avaliacoesList');
+
         if (!result.success || !result.avaliacoes || result.avaliacoes.length === 0) {
-            container.innerHTML = '<p>Nenhuma avaliacao registada ainda.</p>';
+            container.innerHTML = '<p>Nenhuma avaliação registada ainda.</p>';
             return;
         }
+
         container.innerHTML = result.avaliacoes
             .reverse()
-            .map(av =>
-                '<div class="customer-item">' +
-                '<div class="customer-info">' +
-                '<h4>' + av.nome + ' <small style="color:#888;">' + av.data + '</small></h4>' +
-                '<p>📞 ' + av.telefone + '</p>' +
-                '<p>⭐ Geral: ' + av.geral + ' | 🚗 Motorista: ' + av.motorista + ' | 🚌 Veiculo: ' + av.veiculo + ' | ⏰ Pontualidade: ' + av.pontualidade + ' | 😊 Atendimento: ' + av.atendimento + '</p>' +
-                (av.comentarios ? '<p style="font-style:italic;">"' + av.comentarios + '"</p>' : '') +
-                '</div>' +
-                '</div>'
-            ).join('');
+            .map(av => `
+                <div class="customer-item">
+                    <div class="customer-info">
+                        <h4>${av.nome} <small style="color:#888;">${av.data}</small></h4>
+                        <p>📞 ${av.telefone}</p>
+                        <p>⭐ Geral: ${av.geral} | 🚗 Motorista: ${av.motorista} | 🚌 Veículo: ${av.veiculo} | ⏰ Pontualidade: ${av.pontualidade} | 😊 Atendimento: ${av.atendimento}</p>
+                        ${av.comentarios ? `<p style="font-style:italic;">"${av.comentarios}"</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
     } catch (error) {
-        console.error('Erro ao carregar avaliacoes:', error);
+        console.error('Erro ao carregar avaliações:', error);
         document.getElementById('avaliacoesList').innerHTML =
-            '<p style="color: red;">Erro ao carregar avaliacoes. Tente recarregar a pagina.</p>';
+            '<p style="color: red;">Erro ao carregar avaliações. Tente recarregar a página.</p>';
     }
 }
 
-// Carregar clientes e avaliacoes ao abrir a secao admin
+// Carregar clientes e avaliações ao abrir a seção admin
 document.querySelector('[data-section="admin"]').addEventListener('click', () => {
     loadCustomers();
     loadAvaliacoes();
 });
 
-// Inicializacao
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-    validarLinkPesquisa();
+    if (window.location.hash) {
+        const section = window.location.hash.substring(1);
+        const btn = document.querySelector(`[data-section="${section}"]`);
+        if (btn) {
+            btn.click();
+        }
+    }
 });
