@@ -393,9 +393,16 @@ document.getElementById('sendSurveyForm').addEventListener('submit', (e) => {
         `${surveyUrl}\n\n` +
         `Obrigado! 🚌`;
 
-    window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    // Usar location.href para Safari não abrir página em branco
+    window.location.href = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
     alert('✅ Link de pesquisa enviado com sucesso!');
     document.getElementById('sendSurveyPhone').value = '';
+
+    // Guardar registo do envio no Google Sheet em background
+    sheetPost({
+        action: 'gerarLink',
+        telefone: formattedPhone
+    }).catch(err => console.error('Erro ao registar link:', err));
 });
 
 // Carregar Lista de Clientes
